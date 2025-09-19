@@ -182,9 +182,33 @@ def create_layout():
                 filtered_other_data = other_data[other_data['Department/Region'] == selected_region]
                 
                 # 重新计算Q3, Q4, Q5的统计数据
-                q3_columns = [col for col in filtered_other_data.columns if 'Q3:' in col and col != 'Q3:Please indicate the cluster(s) of the implementation framework relevant to your work on youth employment. ']
-                q4_columns = [col for col in filtered_other_data.columns if 'Q4:' in col and col != 'Q4:Please indicate the policy areas relevant to your work on youth employment. ']
-                q5_columns = [col for col in filtered_other_data.columns if 'Q5:' in col and col != 'Q5:Please mark the youth groups targeted in your work on youth employment. ']
+                # Q3选项列（基于实际列名）
+                q3_columns = [
+                    'Knowledge development and dissemination. ',
+                    'Technical assistance and capacity-building of constituents. ',
+                    'Advocacy and partnerships. '
+                ]
+                
+                # Q4选项列
+                q4_columns = [
+                    'Employment and economic policies for youth employment. ',
+                    'Employability – Education, training and skills, and the school-to-work transition. ',
+                    'Labour market policies. ',
+                    'Youth entrepreneurship and self-employment. ',
+                    'Rights for young people. '
+                ]
+                
+                # Q5选项列
+                q5_columns = [
+                    'Young women',
+                    'Young people not in employment, education or training (NEET) ',
+                    'Young migrant workers ',
+                    'Young refugees ',
+                    'Young people - sexual orientation and gender identity ',
+                    'Young people with disabilities ',
+                    'Young rural workers  ',
+                    'Young indigenous people '
+                ]
                 
                 # 创建过滤后的数据
                 filtered_results = []
@@ -192,63 +216,25 @@ def create_layout():
                 # 处理Q3数据
                 for col in q3_columns:
                     if col in filtered_other_data.columns:
-                        col_data = filtered_other_data[col].dropna()
-                        yes_count = (col_data == 'YES').sum()
+                        yes_count = (filtered_other_data[col] == 'YES').sum()
                         if yes_count > 0:
-                            # 提取选项名称
-                            option_name = col.split('Q3:Please indicate the cluster(s) of the implementation framework relevant to your work on youth employment. ')[0].strip()
-                            if not option_name:
-                                # 从列名中提取选项
-                                if 'Knowledge development' in col:
-                                    option_name = 'Knowledge development and dissemination'
-                                elif 'Technical assistance' in col:
-                                    option_name = 'Technical assistance and capacity-building'
-                                elif 'Advocacy' in col:
-                                    option_name = 'Advocacy and partnerships'
+                            option_name = col.strip()
                             filtered_results.append({'group': 'Q3', 'option': option_name, 'count': yes_count})
                 
                 # 处理Q4数据
                 for col in q4_columns:
                     if col in filtered_other_data.columns:
-                        col_data = filtered_other_data[col].dropna()
-                        yes_count = (col_data == 'YES').sum()
+                        yes_count = (filtered_other_data[col] == 'YES').sum()
                         if yes_count > 0:
-                            option_name = col.split('Q4:Please indicate the policy areas relevant to your work on youth employment. ')[0].strip()
-                            if not option_name:
-                                if 'Employment and economic' in col:
-                                    option_name = 'Employment and economic policies'
-                                elif 'Employability' in col:
-                                    option_name = 'Employability – Education, training and skills'
-                                elif 'Labour market' in col:
-                                    option_name = 'Labour market policies'
-                                elif 'Youth entrepreneurship' in col:
-                                    option_name = 'Youth entrepreneurship and self-employment'
-                                elif 'Rights for young' in col:
-                                    option_name = 'Rights for young people'
+                            option_name = col.strip()
                             filtered_results.append({'group': 'Q4', 'option': option_name, 'count': yes_count})
                 
                 # 处理Q5数据
                 for col in q5_columns:
                     if col in filtered_other_data.columns:
-                        col_data = filtered_other_data[col].dropna()
-                        yes_count = (col_data == 'YES').sum()
+                        yes_count = (filtered_other_data[col] == 'YES').sum()
                         if yes_count > 0:
-                            option_name = col.split('Q5:Please mark the youth groups targeted in your work on youth employment. ')[0].strip()
-                            if not option_name:
-                                if 'Young women' in col:
-                                    option_name = 'Young women'
-                                elif 'NEET' in col:
-                                    option_name = 'Young people not in employment, education or training (NEET)'
-                                elif 'migrant' in col:
-                                    option_name = 'Young migrant workers'
-                                elif 'refugees' in col:
-                                    option_name = 'Young refugees'
-                                elif 'disabilities' in col:
-                                    option_name = 'Young people with disabilities'
-                                elif 'rural' in col:
-                                    option_name = 'Young rural workers'
-                                elif 'indigenous' in col:
-                                    option_name = 'Young indigenous people'
+                            option_name = col.strip()
                             filtered_results.append({'group': 'Q5', 'option': option_name, 'count': yes_count})
                 
                 if filtered_results:
