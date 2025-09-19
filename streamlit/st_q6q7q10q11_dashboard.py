@@ -317,17 +317,60 @@ def create_layout():
 
     data_processor = Q6Q7Q10Q11DataProcessor()
     
+    # 根据区域过滤数据处理器
+    if has_region_data and selected_region != 'All':
+        try:
+            # 创建区域过滤的数据处理器
+            filtered_processor = Q6Q7Q10Q11DataProcessor()
+            
+            # 获取选定区域的用户ID
+            region_users = set()
+            for file_path in region_files:
+                try:
+                    if os.path.exists(file_path):
+                        df = pd.read_csv(file_path, header=2)
+                        if 'Department/Region' in df.columns:
+                            region_df = df[df['Department/Region'] == selected_region]
+                            if 'UserId' in region_df.columns:
+                                region_users.update(region_df['UserId'].dropna().unique())
+                except:
+                    continue
+            
+            if region_users:
+                # 过滤数据处理器中的数据
+                if not filtered_processor.cpo_glo_data.empty and 'UserId' in filtered_processor.cpo_glo_data.columns:
+                    filtered_processor.cpo_glo_data = filtered_processor.cpo_glo_data[
+                        filtered_processor.cpo_glo_data['UserId'].isin(region_users)
+                    ]
+                
+                if not filtered_processor.works_count_data.empty and 'UserId' in filtered_processor.works_count_data.columns:
+                    filtered_processor.works_count_data = filtered_processor.works_count_data[
+                        filtered_processor.works_count_data['UserId'].isin(region_users)
+                    ]
+                
+                if not filtered_processor.frequency_data.empty and 'UserId' in filtered_processor.frequency_data.columns:
+                    filtered_processor.frequency_data = filtered_processor.frequency_data[
+                        filtered_processor.frequency_data['UserId'].isin(region_users)
+                    ]
+                
+                if not filtered_processor.works_list_data.empty and 'UserId' in filtered_processor.works_list_data.columns:
+                    filtered_processor.works_list_data = filtered_processor.works_list_data[
+                        filtered_processor.works_list_data['UserId'].isin(region_users)
+                    ]
+                
+                data_processor = filtered_processor
+                st.info(f"Showing data for: {selected_region} ({len(region_users)} users)")
+            else:
+                st.warning(f"No users found for region: {selected_region}")
+        except Exception as e:
+            st.warning(f"Region filtering encountered an issue: {str(e)}. Showing all data.")
+    
     # Check if data is available
     if (data_processor.works_count_data.empty and 
         data_processor.frequency_data.empty and 
         data_processor.works_list_data.empty):
         st.warning("No data available to display. Please ensure the result files are in the correct location.")
         return
-
-    # 根据区域过滤数据的提示
-    if has_region_data and selected_region != 'All':
-        st.info(f"Showing data for: {selected_region}")
-        st.warning("Note: Regional filtering is partially implemented. Full filtering logic requires data structure analysis.")
 
     # Display summary statistics
     summary_stats = data_processor.get_summary_stats()
