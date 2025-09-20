@@ -3,44 +3,62 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 
-# 标准化颜色配置
-STANDARD_COLORS = [
-    '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6',
-    '#1abc9c', '#34495e', '#e67e22', '#95a5a6', '#f1c40f',
-    '#8e44ad', '#16a085', '#2c3e50', '#d35400', '#7f8c8d'
-]
+# Import unified style module
+try:
+    from st_styles import style_manager, create_chart, apply_page_style, create_metrics, create_table
+    STYLES_AVAILABLE = True
+except ImportError:
+    STYLES_AVAILABLE = False
+    # Standardized color configuration
+    STANDARD_COLORS = [
+        '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6',
+        '#1abc9c', '#34495e', '#e67e22', '#95a5a6', '#f1c40f',
+        '#8e44ad', '#16a085', '#2c3e50', '#d35400', '#7f8c8d'
+    ]
 
 def create_layout():
+    # Apply page styling
+    if STYLES_AVAILABLE:
+        apply_page_style()
+    else:
+        st.set_page_config(
+            page_title="Q3-Q4-Q5 Analysis",
+            page_icon="📊",
+            layout="wide",
+            initial_sidebar_state="expanded"
+        )
+    
     st.title("Overview of 2024 outputs")
 
-    # Load data
-    try:
-        data = pd.read_csv("result/q345_analysis_results.csv")
-    except FileNotFoundError:
-        st.error("The data file 'q345_analysis_results.csv' was not found in the 'result' directory.")
-        return
-
-    # 添加区域过滤功能
+    # Add region filtering functionality
     st.sidebar.header("Filters")
     
-    # 检查是否有区域数据
-    has_region_data = False
+    # Read original data files directly
     try:
-        other_data = pd.read_csv("orignaldata/q345_option_other.csv", header=2)
-        if 'Department/Region' in other_data.columns:
-            regions = ['All'] + sorted(other_data['Department/Region'].dropna().unique().tolist())
+        # Read Q3 data
+        q3_data = pd.read_csv("../orignaldata/PART2_base_dataQ3.csv")
+        # Read Q4 data  
+        q4_data = pd.read_csv("../orignaldata/PART2_base_dataQ4.csv")
+        # Read Q5 data
+        q5_data = pd.read_csv("../orignaldata/PART2_base_dataQ5.csv")
+        
+        # Check if region data exists
+        has_region_data = False
+        if 'Department/Region' in q3_data.columns:
+            regions = ['All'] + sorted(q3_data['Department/Region'].dropna().unique().tolist())
             selected_region = st.sidebar.selectbox("Select Organizational Unit", regions)
             has_region_data = True
         else:
             st.sidebar.info("Regional filtering not available - no region data found.")
             selected_region = 'All'
-    except:
-        st.sidebar.info("Regional filtering not available - data file not found.")
-        selected_region = 'All'
+            
+    except FileNotFoundError as e:
+        st.error(f"Data files not found: {str(e)}")
+        return
 
-    def create_standardized_chart(data: pd.DataFrame, group: str, chart_type: str = 'pie') -> go.Figure:
+    def create_standardized_chart(data_dict: dict, group: str, chart_type: str = 'pie') -> go.Figure:
         """Create standardized chart with consistent styling"""
-        if data.empty:
+        if not data_dict or all(v == 0 for v in data_dict.values()):
             fig = go.Figure()
             fig.add_annotation(
                 text=f"No data available for {group}",
@@ -60,225 +78,129 @@ def create_layout():
             )
             return fig
 
-        # Convert data format to dictionary
-        if 'option' in data.columns and 'count' in data.columns:
-            # Filter out zero counts
-            filtered_data = data[data['count'] > 0]
-            if filtered_data.empty:
-                fig = go.Figure()
-                fig.add_annotation(
-                    text=f"No responses for {group}",
-                    xref="paper", yref="paper",
-                    x=0.5, y=0.5,
-                    showarrow=False,
-                    font=dict(size=16, color="#7f8c8d")
-                )
-                fig.update_layout(
-                    title=f"{group} Response Distribution",
-                    title_font_size=20,
-                    title_x=0.5,
-                    title_xanchor='center',
-                    height=500,
-                    paper_bgcolor='white',
-                    plot_bgcolor='white'
-                )
-                return fig
-            data_dict = dict(zip(filtered_data['option'], filtered_data['count']))
+        # Set corresponding title based on group
+        title_mapping = {
+            'Q3': 'Distribution Of Outputs Across The Clusters Of The Implementation Framework',
+            'Q4': 'Distribution Of Outputs Across The Pillars Of The Call For Action On Youth Employment',
+            'Q5': 'Distribution Of Outputs Across Target Youth Groups, When Applicable'
+        }
+        chart_title = title_mapping.get(group, f"{group} Response Distribution")
+
+        # Use unified styling to create chart
+        if STYLES_AVAILABLE:
+            return create_chart(data_dict, chart_type, chart_title)
         else:
+            # Backup chart creation logic
+            colors = STANDARD_COLORS
+            categories = list(data_dict.keys())
+            values = list(data_dict.values())
+            
             fig = go.Figure()
-            fig.add_annotation(
-                text=f"Invalid data structure for {group}",
-                xref="paper", yref="paper",
-                x=0.5, y=0.5,
-                showarrow=False,
-                font=dict(size=16, color="#7f8c8d")
-            )
+            
+            if chart_type == 'pie':
+                fig.add_trace(go.Pie(
+                    labels=categories,
+                    values=values,
+                    marker_colors=colors[:len(categories)],
+                    hovertemplate='<b>%{label}</b><br>Count: %{value}<br>Percentage: %{percent}<extra></extra>'
+                ))
+            else:  # bar chart
+                fig.add_trace(go.Bar(
+                    x=categories,
+                    y=values,
+                    marker_color=colors[0],
+                    hovertemplate='<b>%{x}</b><br>Count: %{y}<extra></extra>'
+                ))
+                fig.update_layout(
+                    xaxis_title='Category',
+                    yaxis_title='Count'
+                )
+            
             fig.update_layout(
-                title=f"{group} Response Distribution",
+                title=chart_title,
                 title_font_size=20,
                 title_x=0.5,
                 title_xanchor='center',
                 height=500,
                 paper_bgcolor='white',
-                plot_bgcolor='white'
+                plot_bgcolor='white',
+                font_family="Arial"
             )
+            
             return fig
 
-        labels = list(data_dict.keys())
-        values = list(data_dict.values())
+    # Data processing and analysis functions
+    def process_question_data(data, question_columns, group_name):
+        """Process question data and return statistical results"""
+        results = {}
+        for col in question_columns:
+            if col in data.columns:
+                yes_count = (data[col] == 'YES').sum()
+                if yes_count > 0:
+                    # Clean column name, remove trailing spaces and periods
+                    clean_name = col.strip().rstrip('.')
+                    results[clean_name] = yes_count
+        return results
 
-        # 创建图表
-        if chart_type == 'pie':
-            # 使用标准化颜色
-            colors = STANDARD_COLORS[:len(labels)]
-            
-            fig = go.Figure(data=[go.Pie(
-                labels=labels, 
-                values=values, 
-                hole=.3,
-                marker=dict(colors=colors, line=dict(color='#FFFFFF', width=2)),
-                textinfo='label+percent',
-                textposition='auto',
-                hovertemplate='<b>%{label}</b><br>Count: %{value}<br>Percentage: %{percent}<extra></extra>'
-            )])
-            
-            fig.update_layout(
-                title=f"{group} Response Distribution",
-                title_font_size=20,
-                title_x=0.5,
-                title_xanchor='center',
-                height=500,
-                paper_bgcolor='white',
-                plot_bgcolor='white',
-                font_family="Arial",
-                showlegend=True,
-                legend=dict(
-                    orientation="v",
-                    yanchor="middle",
-                    y=0.5,
-                    xanchor="left",
-                    x=1.05
-                )
-            )
-        else:  # bar chart
-            df = pd.DataFrame({'Category': labels, 'Count': values})
-            df = df.sort_values('Count', ascending=False)
-            
-            fig = px.bar(
-                df, 
-                x='Category', 
-                y='Count', 
-                title=f"{group} Response Distribution",
-                color_discrete_sequence=STANDARD_COLORS
-            )
-            
-            fig.update_layout(
-                title_font_size=20,
-                title_x=0.5,
-                title_xanchor='center',
-                height=500,
-                paper_bgcolor='white',
-                plot_bgcolor='white',
-                font_family="Arial",
-                xaxis_tickangle=-45
-            )
-        
-        return fig
+    # Define question column mapping
+    q3_columns = [
+        'Knowledge development and dissemination. ',
+        'Technical assistance and capacity-building of constituents. ',
+        'Advocacy and partnerships. '
+    ]
+    
+    q4_columns = [
+        'Employment and economic policies for youth employment. ',
+        'Employability – Education, training and skills, and the school-to-work transition. ',
+        'Labour market policies. ',
+        'Youth entrepreneurship and self-employment. ',
+        'Rights for young people. '
+    ]
+    
+    q5_columns = [
+        'Young women',
+        'Young people not in employment, education or training (NEET) ',
+        'Young migrant workers ',
+        'Young refugees ',
+        'Young people - sexual orientation and gender identity ',
+        'Young people with disabilities ',
+        'Young rural workers  ',
+        'Young indigenous people '
+    ]
 
-    # 根据区域过滤数据
-    filtered_data = data.copy()
+    # Filter data based on region
     if has_region_data and selected_region != 'All':
-        try:
-            # 获取选定区域的用户ID
-            region_users = other_data[other_data['Department/Region'] == selected_region]['UserId'].unique()
-            
-            if len(region_users) > 0:
-                # 过滤主数据，只显示选定区域的数据
-                # 假设主数据中有UserId字段或者可以通过某种方式关联
-                # 如果没有直接的UserId字段，我们需要重新生成分析结果
-                st.info(f"Showing data for: {selected_region} ({len(region_users)} users)")
-                
-                # 重新分析选定区域的数据
-                filtered_other_data = other_data[other_data['Department/Region'] == selected_region]
-                
-                # 重新计算Q3, Q4, Q5的统计数据
-                # Q3选项列（基于实际列名）
-                q3_columns = [
-                    'Knowledge development and dissemination. ',
-                    'Technical assistance and capacity-building of constituents. ',
-                    'Advocacy and partnerships. '
-                ]
-                
-                # Q4选项列
-                q4_columns = [
-                    'Employment and economic policies for youth employment. ',
-                    'Employability – Education, training and skills, and the school-to-work transition. ',
-                    'Labour market policies. ',
-                    'Youth entrepreneurship and self-employment. ',
-                    'Rights for young people. '
-                ]
-                
-                # Q5选项列
-                q5_columns = [
-                    'Young women',
-                    'Young people not in employment, education or training (NEET) ',
-                    'Young migrant workers ',
-                    'Young refugees ',
-                    'Young people - sexual orientation and gender identity ',
-                    'Young people with disabilities ',
-                    'Young rural workers  ',
-                    'Young indigenous people '
-                ]
-                
-                # 创建过滤后的数据
-                filtered_results = []
-                
-                # 处理Q3数据
-                for col in q3_columns:
-                    if col in filtered_other_data.columns:
-                        yes_count = (filtered_other_data[col] == 'YES').sum()
-                        if yes_count > 0:
-                            option_name = col.strip()
-                            filtered_results.append({'group': 'Q3', 'option': option_name, 'count': yes_count})
-                
-                # 处理Q4数据
-                for col in q4_columns:
-                    if col in filtered_other_data.columns:
-                        yes_count = (filtered_other_data[col] == 'YES').sum()
-                        if yes_count > 0:
-                            option_name = col.strip()
-                            filtered_results.append({'group': 'Q4', 'option': option_name, 'count': yes_count})
-                
-                # 处理Q5数据
-                for col in q5_columns:
-                    if col in filtered_other_data.columns:
-                        yes_count = (filtered_other_data[col] == 'YES').sum()
-                        if yes_count > 0:
-                            option_name = col.strip()
-                            filtered_results.append({'group': 'Q5', 'option': option_name, 'count': yes_count})
-                
-                if filtered_results:
-                    filtered_data = pd.DataFrame(filtered_results)
-                else:
-                    st.warning(f"No data found for region: {selected_region}")
-                    filtered_data = pd.DataFrame(columns=['group', 'option', 'count'])
-            else:
-                st.warning(f"No users found for region: {selected_region}")
-                filtered_data = pd.DataFrame(columns=['group', 'option', 'count'])
-        except Exception as e:
-            st.warning(f"Region filtering encountered an issue: {str(e)}. Showing all data.")
-            filtered_data = data.copy()
+        st.info(f"Showing data for: {selected_region}")
+        
+        # Filter data
+        filtered_q3 = q3_data[q3_data['Department/Region'] == selected_region]
+        filtered_q4 = q4_data[q4_data['Department/Region'] == selected_region]
+        filtered_q5 = q5_data[q5_data['Department/Region'] == selected_region]
+        
+        # Process data
+        q3_results = process_question_data(filtered_q3, q3_columns, 'Q3')
+        q4_results = process_question_data(filtered_q4, q4_columns, 'Q4')
+        q5_results = process_question_data(filtered_q5, q5_columns, 'Q5')
+    else:
+        # Process all data
+        q3_results = process_question_data(q3_data, q3_columns, 'Q3')
+        q4_results = process_question_data(q4_data, q4_columns, 'Q4')
+        q5_results = process_question_data(q5_data, q5_columns, 'Q5')
 
     # Q3 Chart
-    st.header("Distribution Of Outputs Across The Clusters Of The Implementation Framework")
-    q3_data = filtered_data[filtered_data['group'] == 'Q3']
-    
-    # 添加图表类型选择
-    col1, col2 = st.columns([3, 1])
-    with col2:
-        q3_chart_type = st.selectbox("Chart Type", ['pie', 'bar'], key='q3_type')
-    
-    with col1:
-        st.plotly_chart(create_standardized_chart(q3_data, 'Q3', q3_chart_type), use_container_width=True)
+    # Automatically select chart type: bar chart for 5+ items, pie chart for less than 5
+    q3_chart_type = 'bar' if len(q3_results) >= 5 else 'pie'
+    st.plotly_chart(create_standardized_chart(q3_results, 'Q3', q3_chart_type), use_container_width=True)
 
     # Q4 Chart
-    st.header("Distribution Of Outputs Across The Pillars Of The Call For Action On Youth Employment")
-    q4_data = filtered_data[filtered_data['group'] == 'Q4']
-    
-    col1, col2 = st.columns([3, 1])
-    with col2:
-        q4_chart_type = st.selectbox("Chart Type", ['pie', 'bar'], key='q4_type')
-    
-    with col1:
-        st.plotly_chart(create_standardized_chart(q4_data, 'Q4', q4_chart_type), use_container_width=True)
+    # Automatically select chart type: bar chart for 5+ items, pie chart for less than 5
+    q4_chart_type = 'bar' if len(q4_results) >= 5 else 'pie'
+    st.plotly_chart(create_standardized_chart(q4_results, 'Q4', q4_chart_type), use_container_width=True)
 
     # Q5 Chart
-    st.header("Distribution Of Outputs Across Target Youth Groups, When Applicable")
-    q5_data = filtered_data[filtered_data['group'] == 'Q5']
-    
-    col1, col2 = st.columns([3, 1])
-    with col2:
-        q5_chart_type = st.selectbox("Chart Type", ['pie', 'bar'], key='q5_type')
-    
-    with col1:
-        st.plotly_chart(create_standardized_chart(q5_data, 'Q5', q5_chart_type), use_container_width=True)
+    # Automatically select chart type: bar chart for 5+ items, pie chart for less than 5
+    q5_chart_type = 'bar' if len(q5_results) >= 5 else 'pie'
+    st.plotly_chart(create_standardized_chart(q5_results, 'Q5', q5_chart_type), use_container_width=True)
+
+if __name__ == "__main__":
+    create_layout()

@@ -7,14 +7,118 @@ import plotly.express as px
 import plotly.graph_objects as go
 from typing import Dict, Any
 
-# Import original modules from main directory
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from data_handler import DataHandler
-from styles import style_manager
-from visualizer import visualizer
+# Try to import unified style module
+try:
+    from st_styles import style_manager, create_chart, apply_page_style, create_metrics, create_table
+    STYLES_AVAILABLE = True
+except ImportError:
+    STYLES_AVAILABLE = False
+    # Backup color configuration
+    STANDARD_COLORS = [
+        '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6',
+        '#1abc9c', '#34495e', '#e67e22', '#95a5a6', '#f1c40f',
+        '#8e44ad', '#16a085', '#2c3e50', '#d35400', '#7f8c8d'
+    ]
+
+# Import original modules from local streamlit directory
+try:
+    from data_handler import DataHandler
+    from visualizer import visualizer
+    ORIGINAL_MODULES_AVAILABLE = True
+except ImportError:
+    ORIGINAL_MODULES_AVAILABLE = False
+    # If unable to import original modules, create simplified versions
+    class DataHandler:
+        def import_data_from_external(self, file_path, file_type):
+            try:
+                if file_type == 'csv':
+                    df = pd.read_csv(file_path)
+                    # Simplified data processing logic
+                    questions_data = {}
+                    for _, row in df.iterrows():
+                        question = row.get('Question', '')
+                        option = row.get('Option', '')
+                        count = row.get('Count', 0)
+                        if question not in questions_data:
+                            questions_data[question] = {}
+                        questions_data[question][option] = count
+                    return questions_data
+                return {}
+            except Exception:
+                return {}
+    
+    class StyleManager:
+        def get_theme_colors(self):
+            return {
+                'primary': '#3498DB',
+                'secondary': '#F39C12',
+                'success': '#2ECC71',
+                'danger': '#E74C3C',
+                'warning': '#F1C40F',
+                'info': '#17A2B8',
+                'light': '#F8F9FA',
+                'dark': '#343A40',
+                'background': '#FFFFFF',
+                'text': '#2C3E50',
+                'border': '#DEE2E6'
+            }
+        
+        def get_chart_colors(self):
+            return STANDARD_COLORS
+    
+    # If unable to import original visualizer, create simplified version
+    class Visualizer:
+        def create_chart(self, data, chart_type, title):
+            fig = go.Figure()
+            if data and isinstance(data, dict):
+                categories = list(data.keys())
+                values = list(data.values())
+                
+                if chart_type == 'pie':
+                    fig.add_trace(go.Pie(
+                        labels=categories,
+                        values=values,
+                        marker_colors=STANDARD_COLORS[:len(categories)]
+                    ))
+                else:
+                    fig.add_trace(go.Bar(
+                        x=categories,
+                        y=values,
+                        marker_color=STANDARD_COLORS[0]
+                    ))
+                
+                fig.update_layout(
+                    title=title,
+                    title_font_size=20,
+                    title_x=0.5,
+                    title_xanchor='center',
+                    height=500,
+                    paper_bgcolor='white',
+                    plot_bgcolor='white'
+                )
+            
+            return fig
+        
+        def auto_select_chart_type(self, data):
+            """Automatically select appropriate chart type"""
+            if not data:
+                return 'table'
+            
+            num_options = len(data)
+            max_label_length = max(len(str(label)) for label in data.keys())
+            
+            # Select chart type based on number of options and label length
+            if num_options <= 5:
+                return 'pie'
+            elif max_label_length > 20 or num_options > 10:
+                return 'horizontal_bar'
+            else:
+                return 'bar'
+    
+    visualizer = Visualizer()
 
 class GeneralDataProcessor:
-    def __init__(self, csv_file_path="orignaldata/question_response_count_statistics.csv"):
+    def __init__(self, csv_file_path="../orignaldata/PART1_base_dataQ2-5.csv"):
         self.csv_file_path = csv_file_path
         self.questions_data = {}
         self.analysis_results = None
@@ -25,15 +129,26 @@ class GeneralDataProcessor:
     def load_data(self):
         """Load survey data using DataHandler (same as original Dash version)"""
         try:
-            # Import DataHandler from the main directory
-            import sys
-            import os
-            sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-            from data_handler import DataHandler
+            # Read new format CSV file directly
+            df = pd.read_csv(self.csv_file_path, encoding='utf-8')
             
-            # Use DataHandler to load data (same as original Dash version)
-            data_handler = DataHandler()
-            self.questions_data = data_handler.import_data_from_external(self.csv_file_path, 'csv')
+            # Check if necessary columns exist
+            if 'question' not in df.columns or 'option' not in df.columns or 'count' not in df.columns:
+                st.error("CSV file must contain 'question', 'option', and 'count' columns")
+                self.questions_data = {}
+                self.analysis_results = None
+                return
+            
+            # Convert data format to expected dictionary structure
+            self.questions_data = {}
+            for _, row in df.iterrows():
+                question = str(row['question']).strip()
+                option = str(row['option']).strip()
+                count = int(row['count']) if pd.notna(row['count']) else 0
+                
+                if question not in self.questions_data:
+                    self.questions_data[question] = {}
+                self.questions_data[question][option] = count
             
             if self.questions_data:
                 st.success(f"Successfully loaded {len(self.questions_data)} questions")
@@ -96,14 +211,14 @@ class GeneralDataProcessor:
     def _load_user_data(self):
         try:
             unique_users = set()
-            q8q9_path = "orignaldata/Q8Q9_basic_data.csv"
+            q8q9_path = "../orignaldata/Q8Q9_basic_data.csv"
             if os.path.exists(q8q9_path):
                 q8q9_df = pd.read_csv(q8q9_path, encoding='utf-8', skiprows=2)
                 if len(q8q9_df.columns) > 0:
                     user_ids = q8q9_df.iloc[:, 0].dropna().unique()
                     unique_users.update(user_ids)
             
-            q6q7q10q11_path = "orignaldata/Q6Q7Q10Q11_basic_data.csv"
+            q6q7q10q11_path = "../orignaldata/Q6Q7Q10Q11_basic_data.csv"
             if os.path.exists(q6q7q10q11_path):
                 q6q7q10q11_df = pd.read_csv(q6q7q10q11_path, encoding='utf-8')
                 if 'UserId' in q6q7q10q11_df.columns:
@@ -119,116 +234,321 @@ class GeneralDataProcessor:
             return int(match.group(1))
         return 999
 
-def create_chart(data, chart_type, title):
-    """Create chart using original visualizer with proper styling"""
-    try:
-        # Use the visualizer's create_chart method with proper chart type mapping
-        if chart_type == 'bar':
-            fig = visualizer.create_chart(data, 'bar', title)
-        elif chart_type == 'pie':
-            fig = visualizer.create_chart(data, 'pie', title)
-        elif chart_type == 'horizontal_bar':
-            fig = visualizer.create_chart(data, 'horizontal_bar', title)
-        else:
-            fig = visualizer.create_chart(data, 'bar', title)
+def process_title_for_display(title):
+    """Process title for better display - add line breaks for long titles"""
+    if not title:
+        return title
+    
+    # For Q2 and Q3 questions, apply smart line breaking
+    if 'Q2:' in title or 'Q3:' in title:
+        # Split at the colon first
+        if ':' in title:
+            parts = title.split(':', 1)
+            question_part = parts[0] + ':'
+            content_part = parts[1].strip()
             
-        return fig
+            # Check if the combined length is reasonable for one line
+            combined_length = len(question_part) + len(content_part) + 1
+            
+            # If total length is reasonable (< 80 characters), keep on one line
+            if combined_length <= 80:
+                return title
+            
+            # If too long, break intelligently at natural points
+            # Try to find a good breaking point in the content
+            words = content_part.split(' ')
+            if len(words) > 1:
+                # Find a good midpoint for breaking
+                mid_point = len(words) // 2
+                first_part = ' '.join(words[:mid_point])
+                second_part = ' '.join(words[mid_point:])
+                
+                # Keep question part with first part of content
+                return question_part + ' ' + first_part + '<br>' + second_part
+            else:
+                # If content is just one long word, break after question part
+                return question_part + '<br>' + content_part
+    
+    # For other titles, apply general line breaking if needed
+    max_length = 50  # Maximum length per line for other titles
+    
+    # If title is short enough, return as is
+    if len(title) <= max_length:
+        return title
+    
+    # For other long titles, apply general line breaking
+    words = title.split(' ')
+    lines = []
+    current_line = ""
+    
+    for word in words:
+        if len(current_line) + len(word) + 1 <= max_length:
+            current_line += (" " if current_line else "") + word
+        else:
+            if current_line:
+                lines.append(current_line)
+            current_line = word
+    
+    if current_line:
+        lines.append(current_line)
+    
+    return "<br>".join(lines)
+
+def create_chart_unified(data, chart_type, title):
+    """Create chart using unified styling system"""
+    try:
+        # Process title for better display - add line breaks for long titles
+        processed_title = process_title_for_display(title)
+        
+        # Use unified styling to create chart
+        if STYLES_AVAILABLE:
+            return create_chart(data, chart_type, processed_title)
+        else:
+            # Backup chart creation logic
+            fig = go.Figure()
+            if data and isinstance(data, dict):
+                colors = STANDARD_COLORS
+                categories = list(data.keys())
+                values = list(data.values())
+                
+                if chart_type == 'pie':
+                    fig.add_trace(go.Pie(
+                        labels=categories,
+                        values=values,
+                        marker_colors=colors[:len(categories)],
+                        hovertemplate='<b>%{label}</b><br>Count: %{value}<br>Percentage: %{percent}<extra></extra>'
+                    ))
+                elif chart_type == 'horizontal_bar':
+                    fig.add_trace(go.Bar(
+                        x=values,
+                        y=categories,
+                        orientation='h',
+                        marker_color=colors[0],
+                        hovertemplate='<b>%{y}</b><br>Count: %{x}<extra></extra>'
+                    ))
+                    fig.update_layout(
+                        xaxis_title='Count',
+                        yaxis_title='Category'
+                    )
+                else:  # bar chart
+                    fig.add_trace(go.Bar(
+                        x=categories,
+                        y=values,
+                        marker_color=colors[0],
+                        hovertemplate='<b>%{x}</b><br>Count: %{y}<extra></extra>'
+                    ))
+                    fig.update_layout(
+                        xaxis_title='Category',
+                        yaxis_title='Count'
+                    )
+                
+                fig.update_layout(
+                    title=processed_title,
+                    title_font_size=20,
+                    title_x=0.5,
+                    title_xanchor='center',
+                    height=500,
+                    paper_bgcolor='white',
+                    plot_bgcolor='white',
+                    font_family="Arial"
+                )
+            
+            return fig
         
     except Exception as e:
         st.error(f"Error creating chart: {str(e)}")
-        # Fallback to simple chart with original styling
+        # Final backup chart
         fig = go.Figure()
-        if data and isinstance(data, dict):
-            colors = style_manager.get_chart_colors()
-            fig.add_trace(go.Bar(
-                x=list(data.keys()), 
-                y=list(data.values()),
-                marker_color=colors[0]
-            ))
+        fig.add_annotation(
+            text=f"Error creating chart: {str(e)}",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5,
+            showarrow=False,
+            font=dict(size=16, color="#7f8c8d")
+        )
         fig.update_layout(
-            title=title,
+            title=processed_title,
             title_font_size=20,
             title_x=0.5,
             title_xanchor='center',
+            height=500,
             paper_bgcolor='white',
             plot_bgcolor='white'
         )
         return fig
 
 def create_layout():
-    """Create the main layout using original styles"""
-    # Apply original styles using theme colors
-    theme_colors = style_manager.get_theme_colors()
-    chart_colors = style_manager.get_chart_colors()
-    
-    # Create custom CSS based on original styles
-    custom_css = f"""
-    <style>
-    /* 使用原始配色方案 */
-    :root {{
-        --primary-color: {theme_colors.get('primary', '#3498DB')};
-        --secondary-color: {theme_colors.get('secondary', '#F39C12')};
-        --success-color: {theme_colors.get('success', '#2ECC71')};
-        --danger-color: {theme_colors.get('danger', '#E74C3C')};
-        --warning-color: {theme_colors.get('warning', '#F1C40F')};
-        --info-color: {theme_colors.get('info', '#17A2B8')};
-        --light-color: {theme_colors.get('light', '#F8F9FA')};
-        --dark-color: {theme_colors.get('dark', '#343A40')};
-        --background-color: {theme_colors.get('background', '#FFFFFF')};
-        --text-color: {theme_colors.get('text', '#2C3E50')};
-        --border-color: {theme_colors.get('border', '#DEE2E6')};
-    }}
-    
-    /* 主容器样式 */
-    .main .block-container {{
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }}
-    
-    /* 指标容器样式 */
-    .metrics-container {{
-        background-color: var(--light-color);
-        padding: 15px;
+    """Create the main layout using unified styling system"""
+    # Use unified styling system
+    if STYLES_AVAILABLE:
+        apply_page_style()
+        # When using unified styling system, no additional CSS needed
+        custom_css = ""
+    else:
+        # Backup page styling
+        st.set_page_config(
+            page_title="General Survey Dashboard",
+            page_icon="📊",
+            layout="wide",
+            initial_sidebar_state="expanded"
+        )
+        
+        # Apply original styles using theme colors
+        if ORIGINAL_MODULES_AVAILABLE:
+            # Use local visualizer's style manager
+            theme_colors = visualizer.style_manager.get_theme_colors()
+            chart_colors = visualizer.style_manager.get_chart_colors()
+        else:
+            # Use backup styling
+            style_manager = StyleManager()
+            theme_colors = style_manager.get_theme_colors()
+            chart_colors = style_manager.get_chart_colors()
+        
+        # Create custom CSS based on original styles
+        custom_css = f"""
+        <style>
+        /* Use original color scheme */
+        :root {{
+            --primary-color: {theme_colors.get('primary', '#3498DB')};
+            --secondary-color: {theme_colors.get('secondary', '#F39C12')};
+            --success-color: {theme_colors.get('success', '#2ECC71')};
+            --danger-color: {theme_colors.get('danger', '#E74C3C')};
+            --warning-color: {theme_colors.get('warning', '#F1C40F')};
+            --info-color: {theme_colors.get('info', '#17A2B8')};
+            --light-color: {theme_colors.get('light', '#F8F9FA')};
+            --dark-color: {theme_colors.get('dark', '#343A40')};
+            --background-color: {theme_colors.get('background', '#FFFFFF')};
+            --text-color: {theme_colors.get('text', '#2C3E50')};
+            --border-color: {theme_colors.get('border', '#DEE2E6')};
+        }}
+        
+        /* Main container styling */
+        .main .block-container {{
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }}
+        
+        /* Metrics container styling */
+        .metrics-container {{
+            background-color: var(--light-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }}
+        
+        /* Data table styling */
+        .data-table {{
+            background-color: var(--background-color);
+            border: 1px solid var(--border-color);
         border-radius: 8px;
+        padding: 20px;
         margin-bottom: 20px;
-        border: 1px solid var(--border-color);
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }}
     
-    /* 数据表格样式 */
-    .data-table {{
-        background-color: var(--background-color);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }}
-    
-    /* 选择框样式 */
+    /* Select box styling */
     .stSelectbox > div > div {{
         background-color: var(--background-color);
         border: 1px solid var(--border-color);
         border-radius: 4px;
     }}
     
-    /* 标题样式 */
+    /* Select box main container - prevent truncation */
+    .stSelectbox {{
+        width: 100% !important;
+    }}
+    
+    /* Select box dropdown options - enable text wrapping and auto height */
+    .stSelectbox [data-baseweb="select"] {{
+        width: 100% !important;
+        min-width: 200px !important;
+    }}
+    
+    .stSelectbox [data-baseweb="select"] > div {{
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        min-height: auto !important;
+        height: auto !important;
+        line-height: 1.4 !important;
+        padding: 8px 12px !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+    }}
+    
+    /* Select box dropdown menu */
+    .stSelectbox [data-baseweb="popover"] {{
+        max-width: none !important;
+        width: auto !important;
+        min-width: 300px !important;
+    }}
+    
+    /* Select box dropdown options in the menu */
+    .stSelectbox [data-baseweb="menu"] {{
+        max-width: none !important;
+        width: auto !important;
+        min-width: 300px !important;
+    }}
+    
+    .stSelectbox [data-baseweb="menu"] [role="option"] {{
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        min-height: auto !important;
+        height: auto !important;
+        line-height: 1.4 !important;
+        padding: 12px 16px !important;
+        max-width: none !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+    }}
+    
+    /* Selected option display */
+    .stSelectbox [data-baseweb="select"] [data-baseweb="base-input"] {{
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        min-height: auto !important;
+        height: auto !important;
+        line-height: 1.4 !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+    }}
+    
+    /* Input container */
+    .stSelectbox [data-baseweb="select"] [data-baseweb="input"] {{
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+    }}
+    
+    /* Value container */
+    .stSelectbox [data-baseweb="select"] [data-baseweb="input"] > div {{
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        flex-wrap: wrap !important;
+    }}
+    
+    /* Title styling */
     .main-title {{
         color: var(--primary-color);
         text-align: center;
         margin-bottom: 30px;
     }}
     
-    /* 图表容器样式 */
+    /* Chart container styling */
     .js-plotly-plot {{
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         margin-bottom: 20px;
     }}
     
-    /* 指标卡片样式 */
+    /* Metric card styling */
     [data-testid="metric-container"] {{
         background-color: var(--background-color);
         border: 1px solid var(--border-color);
@@ -237,7 +557,7 @@ def create_layout():
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }}
     
-    /* 分隔线样式 */
+    /* Separator line styling */
     hr {{
         border: none;
         height: 2px;
@@ -247,7 +567,9 @@ def create_layout():
     </style>
     """
     
-    st.markdown(custom_css, unsafe_allow_html=True)
+    # Only apply custom CSS when needed
+    if custom_css:
+        st.markdown(custom_css, unsafe_allow_html=True)
     
     st.title("📊 General Survey Analysis")
     st.markdown("---")
@@ -260,24 +582,6 @@ def create_layout():
         st.error("❌ No data available. Please check the data files.")
         return
     
-    # Display summary statistics using original style
-    if data_processor.analysis_results:
-        # Create styled metrics container
-        st.markdown('<div class="metrics-container">', unsafe_allow_html=True)
-        col1, col2, col3, col4 = st.columns(4)
-        
-        with col1:
-            st.metric("Total Questions", data_processor.analysis_results['total_questions'])
-        with col2:
-            st.metric("Total Responses", data_processor.analysis_results['total_responses'])
-        with col3:
-            st.metric("Avg Responses/Question", f"{data_processor.analysis_results['avg_responses']:.1f}")
-        with col4:
-            st.metric("Total Participants", data_processor.unique_users_count)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown("---")
-    
     # Filter questions to only show Q1-Q5 (matching original dashboard)
     sorted_questions = sorted(questions_data.keys(), key=lambda x: data_processor._extract_question_number(x))
     filtered_questions = [q for q in sorted_questions if data_processor._extract_question_number(q) <= 5]
@@ -287,14 +591,11 @@ def create_layout():
         return
 
     # Question selection and chart controls
-    col1, col2 = st.columns([2, 1])
-    
-    with col1:
-        selected_question = st.selectbox(
-            "Select Question to Analyze:",
-            filtered_questions,
-            key="question_selector"
-        )
+    selected_question = st.selectbox(
+        "Select Question to Analyze:",
+        filtered_questions,
+        key="question_selector"
+    )
     
     # Auto-select chart type based on data characteristics
     if selected_question and selected_question in questions_data:
@@ -313,37 +614,37 @@ def create_layout():
         default_chart = chart_type_mapping.get(auto_chart_type, 'Bar Chart')
         default_index = chart_options.index(default_chart) if default_chart in chart_options else 0
         
-        with col2:
-            chart_type = st.selectbox(
-                "Chart Type:",
-                chart_options,
-                index=default_index,
-                key="chart_type_selector",
-                help=f"Auto-selected: {default_chart} (based on {len(question_data) if question_data else 0} options)"
-            )
+        chart_type = st.selectbox(
+            "Chart Type:",
+            chart_options,
+            index=default_index,
+            key="chart_type_selector",
+            help=f"Auto-selected: {default_chart} (based on {len(question_data) if question_data else 0} options)"
+        )
     else:
-        with col2:
-            chart_type = st.selectbox(
-                "Chart Type:",
-                ["Bar Chart", "Pie Chart", "Horizontal Bar"],
-                key="chart_type_selector"
-            )
+        chart_type = st.selectbox(
+            "Chart Type:",
+            ["Bar Chart", "Pie Chart", "Horizontal Bar"],
+            key="chart_type_selector"
+        )
     
     if selected_question and selected_question in questions_data:
         question_data = questions_data[selected_question]
         
         # Apply filtering for Q4 and Q5 questions (matching original dashboard logic)
+        # Q2 questions (YES/NO) should not be filtered by 5% threshold
         if ('Q4:' in selected_question or 'Q5:' in selected_question) and isinstance(question_data, dict):
             total_count = sum(question_data.values()) if question_data else 0
             if total_count > 0:
-                # Filter out options with less than 5% of total responses
+                # Filter out options with less than 5% of total responses and remove "other" options
                 filtered_data = {k: v for k, v in question_data.items() 
                                if 'other' not in k.lower() and (v/total_count) >= 0.05}
-                # Always include "Other" if it exists
-                if 'Other' in question_data:
-                    filtered_data['Other'] = question_data['Other']
             else:
                 filtered_data = question_data
+        elif 'Q2:' in selected_question and isinstance(question_data, dict):
+            # Q2 questions are YES/NO questions - do not apply 5% filtering
+            # Keep all options regardless of percentage
+            filtered_data = question_data
         else:
             filtered_data = question_data
         
@@ -355,25 +656,28 @@ def create_layout():
         else:
             chart_type_key = "horizontal_bar"
             
-        fig = create_chart(filtered_data, chart_type_key, selected_question)
+        fig = create_chart_unified(filtered_data, chart_type_key, selected_question)
         
         # Display chart
         st.plotly_chart(fig, use_container_width=True)
         
-        # Display data table with original styling
-        st.markdown("### 📋 Response Details")
-        
+        # Display data table with unified styling
         if filtered_data:
             df = pd.DataFrame(list(filtered_data.items()), columns=['Option', 'Count'])
             df = df.sort_values('Count', ascending=False)
             df['Percentage'] = (df['Count'] / df['Count'].sum() * 100).round(1)
             df['Percentage'] = df['Percentage'].astype(str) + '%'
             
-            # Apply table styling
-            st.markdown('<div class="data-table">', unsafe_allow_html=True)
-            st.dataframe(df, use_container_width=True, hide_index=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+            # Use unified styling to create table
+            if STYLES_AVAILABLE:
+                create_table(df)
+            else:
+                # Backup table styling
+                st.markdown('<div class="data-table">', unsafe_allow_html=True)
+                st.dataframe(df, use_container_width=True, hide_index=True)
+                st.markdown('</div>', unsafe_allow_html=True)
         else:
             st.info("No response data available for this question.")
+        
     else:
         st.info("Please select a question to view the analysis.")

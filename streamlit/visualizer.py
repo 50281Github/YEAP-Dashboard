@@ -3,7 +3,52 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
 from typing import Dict, Any, List, Callable
-from styles import style_manager
+
+# Try to import local style module
+try:
+    from st_styles import style_manager
+except ImportError:
+    # If unable to import, create simplified version
+    class StyleManager:
+        def get_chart_colors(self):
+            return ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6']
+        
+        def get_theme_colors(self):
+            return {
+                'primary': '#3498DB',
+                'light': '#F8F9FA',
+                'text': '#2C3E50'
+            }
+        
+        def create_plotly_theme(self):
+            return {'layout': {'paper_bgcolor': 'white', 'plot_bgcolor': 'white'}}
+        
+        def get_global_chart_config(self, config_type):
+            return {'title': {'text': ''}}
+        
+        def _wrap_title(self, title):
+            return title
+        
+        def create_standardized_chart(self, data, chart_type, title):
+            # Simplified chart creation
+            fig = go.Figure()
+            if data and isinstance(data, dict):
+                if chart_type == 'pie':
+                    fig.add_trace(go.Pie(
+                        labels=list(data.keys()),
+                        values=list(data.values()),
+                        marker_colors=self.get_chart_colors()[:len(data)]
+                    ))
+                else:
+                    fig.add_trace(go.Bar(
+                        x=list(data.keys()),
+                        y=list(data.values()),
+                        marker_color=self.get_chart_colors()[0]
+                    ))
+                fig.update_layout(title=title, height=400)
+            return fig
+    
+    style_manager = StyleManager()
 
 class Visualizer:
     """Visualization layer - responsible for chart generation and style application"""
