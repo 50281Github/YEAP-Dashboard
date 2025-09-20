@@ -29,7 +29,9 @@ def create_layout():
             initial_sidebar_state="expanded"
         )
     
-    st.title("Overview of 2024 outputs")
+    st.title("📊 Specialized Analysis")
+    st.markdown("**In-depth analysis focused on implementation frameworks, policy areas, and target groups**")
+    st.markdown("---")
 
     # Add region filtering functionality
     st.sidebar.header("Filters")

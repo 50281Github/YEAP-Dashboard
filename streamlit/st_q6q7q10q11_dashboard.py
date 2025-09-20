@@ -587,7 +587,9 @@ def create_layout():
     # Define base_path
     base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
-    st.header("Youth employment 2024 outputs analysis")
+    st.title("📊 Specialized Analysis")
+    st.markdown("**Outputs statistics and frequency analysis across areas**")
+    st.markdown("---")
 
     # Add region filtering functionality - moved before data processor initialization
     st.sidebar.header("Filters")

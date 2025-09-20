@@ -5,7 +5,8 @@ import st_q6q7q10q11_dashboard
 
 st.set_page_config(layout="wide")
 
-# 添加自定义CSS样式，将标题设置为浅灰色
+
+# add custom css style, set title color to light gray
 st.markdown("""
 <style>
 .main-title {
@@ -17,13 +18,14 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 使用自定义样式的标题
+
+# use custom css style
 st.markdown('<h1 class="main-title">Data Analysis Dashboard</h1>', unsafe_allow_html=True)
 
 PAGES = {
-    "General Dashboard": st_general_dashboard,
-    "Q3, Q4, Q5 Analysis": st_q345_dashboard,
-    "Q6, Q7, Q10, Q11 Analysis": st_q6q7q10q11_dashboard,
+    "General Survey Analysis": st_general_dashboard,
+    "Specialized Analysis (Q3-Q5)": st_q345_dashboard,
+    "Specialized Analysis (Q6-Q11)": st_q6q7q10q11_dashboard,
 }
 
 st.sidebar.title("Navigation")

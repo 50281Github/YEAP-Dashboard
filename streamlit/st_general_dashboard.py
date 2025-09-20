@@ -603,6 +603,7 @@ def create_layout():
         st.markdown(custom_css, unsafe_allow_html=True)
     
     st.title("📊 General Survey Analysis")
+    st.markdown("**Supports visual analysis of all questions with multiple chart types and interactive features**")
     st.markdown("---")
     
     # Initialize data processor
