@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
+import os
 
 # Import unified style module
 try:
@@ -35,12 +36,16 @@ def create_layout():
     
     # Read original data files directly
     try:
+        # Get absolute path of project root directory
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(current_dir)
+        
         # Read Q3 data
-        q3_data = pd.read_csv("../orignaldata/PART2_base_dataQ3.csv")
+        q3_data = pd.read_csv(os.path.join(project_root, 'orignaldata', 'PART2_base_dataQ3.csv'))
         # Read Q4 data  
-        q4_data = pd.read_csv("../orignaldata/PART2_base_dataQ4.csv")
+        q4_data = pd.read_csv(os.path.join(project_root, 'orignaldata', 'PART2_base_dataQ4.csv'))
         # Read Q5 data
-        q5_data = pd.read_csv("../orignaldata/PART2_base_dataQ5.csv")
+        q5_data = pd.read_csv(os.path.join(project_root, 'orignaldata', 'PART2_base_dataQ5.csv'))
         
         # Check if region data exists
         has_region_data = False
