@@ -308,83 +308,103 @@ def process_title_for_display(title):
 def create_chart_unified(data, chart_type, title):
     """Create chart using unified styling system"""
     try:
+        # Validate input data
+        if not data or not isinstance(data, dict):
+            raise ValueError("Invalid data: expected non-empty dictionary")
+        
+        # Clean and validate data
+        clean_data = {}
+        for key, value in data.items():
+            if key is not None and value is not None:
+                clean_key = str(key) if key else "Unknown"
+                try:
+                    clean_value = float(value) if isinstance(value, (int, float)) else 0
+                    if clean_value >= 0:  # Only include non-negative values
+                        clean_data[clean_key] = clean_value
+                except (ValueError, TypeError):
+                    continue  # Skip invalid values
+        
+        if not clean_data:
+            raise ValueError("No valid data points found")
+        
         # Process title for better display - add line breaks for long titles
         processed_title = process_title_for_display(title)
         
         # Use unified styling to create chart
         if STYLES_AVAILABLE:
-            return create_chart(data, chart_type, processed_title)
+            return create_chart(clean_data, chart_type, processed_title)
         else:
             # Backup chart creation logic
             fig = go.Figure()
-            if data and isinstance(data, dict):
-                colors = STANDARD_COLORS
-                categories = list(data.keys())
-                values = list(data.values())
-                
-                if chart_type == 'pie':
-                    fig.add_trace(go.Pie(
-                        labels=categories,
-                        values=values,
-                        marker_colors=colors[:len(categories)],
-                        hovertemplate='<b>%{label}</b><br>Count: %{value}<br>Percentage: %{percent}<extra></extra>'
-                    ))
-                elif chart_type == 'horizontal_bar':
-                    fig.add_trace(go.Bar(
-                        x=values,
-                        y=categories,
-                        orientation='h',
-                        marker_color=colors[0],
-                        hovertemplate='<b>%{y}</b><br>Count: %{x}<extra></extra>'
-                    ))
-                    fig.update_layout(
-                        xaxis_title='Count',
-                        yaxis_title='Category'
-                    )
-                else:  # bar chart
-                    fig.add_trace(go.Bar(
-                        x=categories,
-                        y=values,
-                        marker_color=colors[0],
-                        hovertemplate='<b>%{x}</b><br>Count: %{y}<extra></extra>'
-                    ))
-                    fig.update_layout(
-                        xaxis_title='Category',
-                        yaxis_title='Count'
-                    )
-                
+            colors = STANDARD_COLORS
+            categories = list(clean_data.keys())
+            values = list(clean_data.values())
+            
+            if chart_type == 'pie':
+                fig.add_trace(go.Pie(
+                    labels=categories,
+                    values=values,
+                    marker_colors=colors[:len(categories)],
+                    hovertemplate='<b>%{label}</b><br>Count: %{value}<br>Percentage: %{percent}<extra></extra>'
+                ))
+            elif chart_type == 'horizontal_bar':
+                fig.add_trace(go.Bar(
+                    x=values,
+                    y=categories,
+                    orientation='h',
+                    marker_color=colors[0],
+                    hovertemplate='<b>%{y}</b><br>Count: %{x}<extra></extra>'
+                ))
                 fig.update_layout(
-                    title=processed_title,
-                    title_font_size=20,
-                    title_x=0.5,
-                    title_xanchor='center',
-                    height=500,
-                    paper_bgcolor='white',
-                    plot_bgcolor='white',
-                    font_family="Arial"
+                    xaxis_title='Count',
+                    yaxis_title='Category'
+                )
+            else:  # bar chart
+                fig.add_trace(go.Bar(
+                    x=categories,
+                    y=values,
+                    marker_color=colors[0],
+                    hovertemplate='<b>%{x}</b><br>Count: %{y}<extra></extra>'
+                ))
+                fig.update_layout(
+                    xaxis_title='Category',
+                    yaxis_title='Count'
                 )
             
-            return fig
+            fig.update_layout(
+                title=processed_title,
+                title_font_size=20,
+                title_x=0.5,
+                title_xanchor='center',
+                height=500,
+                paper_bgcolor='white',
+                plot_bgcolor='white',
+                font_family="Arial"
+            )
+        
+        return fig
         
     except Exception as e:
         st.error(f"Error creating chart: {str(e)}")
-        # Final backup chart
+        # Create error chart
         fig = go.Figure()
         fig.add_annotation(
-            text=f"Error creating chart: {str(e)}",
+            text=f"Chart Error: {str(e)}<br>Please try selecting a different question or chart type.",
             xref="paper", yref="paper",
             x=0.5, y=0.5,
             showarrow=False,
-            font=dict(size=16, color="#7f8c8d")
+            font=dict(size=14, color="#e74c3c"),
+            align="center"
         )
         fig.update_layout(
-            title=processed_title,
+            title=title or "Chart Error",
             title_font_size=20,
             title_x=0.5,
             title_xanchor='center',
-            height=500,
+            height=400,
             paper_bgcolor='white',
-            plot_bgcolor='white'
+            plot_bgcolor='white',
+            showlegend=False
         )
         return fig
 
@@ -673,20 +693,42 @@ def create_layout():
         st.plotly_chart(fig, use_container_width=True)
         
         # Display data table with unified styling
-        if filtered_data:
-            df = pd.DataFrame(list(filtered_data.items()), columns=['Option', 'Count'])
-            df = df.sort_values('Count', ascending=False)
-            df['Percentage'] = (df['Count'] / df['Count'].sum() * 100).round(1)
-            df['Percentage'] = df['Percentage'].astype(str) + '%'
-            
-            # Use unified styling to create table
-            if STYLES_AVAILABLE:
-                create_table(df)
-            else:
-                # Backup table styling
-                st.markdown('<div class="data-table">', unsafe_allow_html=True)
-                st.dataframe(df, use_container_width=True, hide_index=True)
-                st.markdown('</div>', unsafe_allow_html=True)
+        if filtered_data and isinstance(filtered_data, dict):
+            try:
+                # Validate data before creating DataFrame
+                valid_items = []
+                for key, value in filtered_data.items():
+                    if key is not None and value is not None:
+                        # Ensure key is string and value is numeric
+                        clean_key = str(key) if key else "Unknown"
+                        clean_value = float(value) if isinstance(value, (int, float)) else 0
+                        valid_items.append((clean_key, clean_value))
+                
+                if valid_items:
+                    df = pd.DataFrame(valid_items, columns=['Option', 'Count'])
+                    df = df.sort_values('Count', ascending=False)
+                    
+                    # Calculate percentage safely
+                    total_count = df['Count'].sum()
+                    if total_count > 0:
+                        df['Percentage'] = (df['Count'] / total_count * 100).round(1)
+                        df['Percentage'] = df['Percentage'].astype(str) + '%'
+                    else:
+                        df['Percentage'] = '0%'
+                    
+                    # Use unified styling to create table
+                    if STYLES_AVAILABLE:
+                        create_table(df)
+                    else:
+                        # Backup table styling
+                        st.markdown('<div class="data-table">', unsafe_allow_html=True)
+                        st.dataframe(df, use_container_width=True, hide_index=True)
+                        st.markdown('</div>', unsafe_allow_html=True)
+                else:
+                    st.info("No valid response data available for this question.")
+            except Exception as e:
+                st.error(f"Error displaying data table: {str(e)}")
+                st.info("Data processing error occurred. Please try selecting a different question.")
         else:
             st.info("No response data available for this question.")
         
