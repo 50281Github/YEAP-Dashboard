@@ -118,7 +118,14 @@ except ImportError:
     visualizer = Visualizer()
 
 class GeneralDataProcessor:
-    def __init__(self, csv_file_path="../orignaldata/PART1_base_dataQ2-5.csv"):
+    def __init__(self, csv_file_path=None):
+        # Get absolute path of project root directory
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(current_dir)
+        
+        if csv_file_path is None:
+            csv_file_path = os.path.join(project_root, 'orignaldata', 'PART1_base_dataQ2-5.csv')
+        
         self.csv_file_path = csv_file_path
         self.questions_data = {}
         self.analysis_results = None
@@ -210,15 +217,19 @@ class GeneralDataProcessor:
 
     def _load_user_data(self):
         try:
+            # Get absolute path of project root directory
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            project_root = os.path.dirname(current_dir)
+            
             unique_users = set()
-            q8q9_path = "../orignaldata/Q8Q9_basic_data.csv"
+            q8q9_path = os.path.join(project_root, 'orignaldata', 'Q8Q9_basic_data.csv')
             if os.path.exists(q8q9_path):
                 q8q9_df = pd.read_csv(q8q9_path, encoding='utf-8', skiprows=2)
                 if len(q8q9_df.columns) > 0:
                     user_ids = q8q9_df.iloc[:, 0].dropna().unique()
                     unique_users.update(user_ids)
             
-            q6q7q10q11_path = "../orignaldata/Q6Q7Q10Q11_basic_data.csv"
+            q6q7q10q11_path = os.path.join(project_root, 'orignaldata', 'Q6Q7Q10Q11_basic_data.csv')
             if os.path.exists(q6q7q10q11_path):
                 q6q7q10q11_df = pd.read_csv(q6q7q10q11_path, encoding='utf-8')
                 if 'UserId' in q6q7q10q11_df.columns:
