@@ -170,19 +170,19 @@ class Q6Q7Q10Q11DataProcessor:
                         else:
                             valid_works = 0
                     
-                    # Get unique user IDs - 只统计有有效内容的用户
+                    # Get unique user IDs - count only users with valid content
                     user_id_col = 'UserId' if 'UserId' in question_data.columns else 'User ID'
                     if user_id_col in question_data.columns:
-                        # 只统计有有效工作内容的用户
+                        # Count only users with valid work content
                         if work_name_columns:
-                            # 使用与valid_works相同的过滤逻辑
+                            # Use the same filtering logic as valid_works
                             valid_mask = question_data[work_name_columns].notna().any(axis=1)
                             for col in work_name_columns:
                                 if col in question_data.columns:
                                     valid_mask = valid_mask & (question_data[col].astype(str).str.strip() != '')
                             users_with_valid_works = question_data[valid_mask][user_id_col].nunique()
                         else:
-                            # 如果没有工作名称列，检查所有内容列
+                            # If no work name columns found, check all content columns
                             exclude_cols = ['UserId', 'User ID', 'Region', 'Question']
                             content_cols = [col for col in question_data.columns if col not in exclude_cols]
                             if content_cols:
@@ -197,7 +197,7 @@ class Q6Q7Q10Q11DataProcessor:
                         'Question': question,
                         'Total_Works': total_works,  # Total works count
                         'Valid_Works': valid_works,  # Filtered works count
-                        'Unique_Users': users_with_valid_works,  # 有有效内容的用户数量
+                        'Unique_Users': users_with_valid_works,  # Number of users with valid content
                         'Total_Outputs': total_works,  # Maintain compatibility
                         'Valid_Outputs': valid_works   # Maintain compatibility
                     })
@@ -704,7 +704,7 @@ def create_layout():
         for q in questions:
             if q in works_count_data:
                 unique_users.append(works_count_data[q]['unique_users'])
-                total_works.append(works_count_data[q]['valid_works'])  # 使用valid_works而不是total_works
+                total_works.append(works_count_data[q]['valid_works'])  # Use valid_works instead of total_works
             else:
                 # If no data, fill with 0
                 unique_users.append(0)
@@ -795,7 +795,11 @@ def create_layout():
     st.header("📊 Frequency Analysis")
     
     # Q6 Analysis
-    st.subheader("Q6 - Knowledge Development & Dissemination")
+    st.markdown("""
+    <div style="background-color: #f0f8ff; padding: 15px; border-radius: 10px; margin: 10px 0;">
+        <h3 style="color: #2c3e50; margin: 0;">📚 Knowledge Development & Dissemination</h3>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Funding Source of Knowledge Development & Dissemination Outputs
     q6_funding_data = data_processor.get_field_distribution('Q6', 'Funding source (Options: regular budget or extrabudgetary)')
@@ -822,7 +826,11 @@ def create_layout():
         st.info("No publication type data available for Q6")
 
     # Q7 Analysis
-    st.subheader("Q7 - Technical Assistance")
+    st.markdown("""
+    <div style="background-color: #f0fff0; padding: 15px; border-radius: 10px; margin: 10px 0;">
+        <h3 style="color: #2c3e50; margin: 0;">🔧 Technical Assistance</h3>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Funding Source of Technical Assistance Outputs
     q7_funding_data = data_processor.get_field_distribution('Q7', 'Funding source (Options: regular budget or extrabudgetary)')
@@ -851,7 +859,11 @@ def create_layout():
         st.info("No region data available for Q7")
     
     # Q10 Analysis
-    st.subheader("Q10 - Capacity Development")
+    st.markdown("""
+    <div style="background-color: #fff8f0; padding: 15px; border-radius: 10px; margin: 10px 0;">
+        <h3 style="color: #2c3e50; margin: 0;">🎓 Capacity Development</h3>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Delivery Mode of Capacity Development Outputs
     q10_delivery_data = data_processor.get_field_distribution('Q10', 'In person or online or both')
@@ -886,7 +898,11 @@ def create_layout():
         st.info("No target group data available for Q10")
 
     # Q11 Analysis
-    st.subheader("Q11 - Advocacy & Partnerships")
+    st.markdown("""
+    <div style="background-color: #fdf0ff; padding: 15px; border-radius: 10px; margin: 10px 0;">
+        <h3 style="color: #2c3e50; margin: 0;">🤝 Advocacy & Partnerships</h3>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Types of Advocacy & Partnership Outputs
     q11_type_data = data_processor.get_field_distribution('Q11', 'Type of partnership\n(Options: UN interagency initiative; or multistakeholder initiative; or bilateral partnership; or event; or campaign; or challenge)')
@@ -975,13 +991,13 @@ def create_layout():
         if not works_df.empty:
             has_project_name = pd.Series([False] * len(works_df), index=works_df.index)
             
-            # 为每个问题使用正确的project name列
+            # Use correct project name column for each question
             for question in ['Q6', 'Q7', 'Q10', 'Q11']:
                 question_mask = works_df['Question'] == question
                 question_data = works_df[question_mask]
                 
                 if not question_data.empty:
-                    # 根据问题类型选择正确的project name列
+                    # Select correct project name column based on question type
                     if question == 'Q6':
                         project_col = 'Initiative/output\'s name??'
                     elif question == 'Q7':
@@ -1001,7 +1017,7 @@ def create_layout():
                             (works_df[project_col].astype(str).str.lower().str.strip() != 'none')
                         )
                         
-                        # 只对当前问题的记录应用过滤
+                        # Apply filter only to current question records
                         question_has_name = question_mask & col_has_name
                         has_project_name = has_project_name | question_has_name
             
@@ -1034,10 +1050,10 @@ def create_layout():
             core_columns = [
                 'Question',  # Question type
                 'UserId',    # User ID  
-                'Department/Region',  # Department/Region (注意：Q11文件中此列缺失)
+                'Department/Region',  # Department/Region
             ]
             
-            # Project name columns for different questions (实际列名)
+            # Project name columns for different questions (actual column names)
             project_name_columns = [
                 'Initiative/output\'s name??',  # Q6
                 'Initiative/programme/project\'s name??',  # Q7
@@ -1048,13 +1064,6 @@ def create_layout():
             # Add existing core columns that have data
             for col in core_columns:
                 if col in display_df.columns:
-                    # 特殊处理：Q11文件缺少Department/Region列
-                    if col == 'Department/Region':
-                        # 检查是否有Q11数据且该列不存在
-                        q11_data = display_df[display_df['Question'] == 'Q11']
-                        if not q11_data.empty and col not in q11_data.columns:
-                            continue
-                    
                     # Check if column has meaningful data (not all None/empty)
                     if not display_df[col].isna().all() and not (display_df[col] == 'None').all():
                         display_columns.append(col)
@@ -1063,7 +1072,7 @@ def create_layout():
             for question in ['Q6', 'Q7', 'Q10', 'Q11']:
                 question_data = display_df[display_df['Question'] == question]
                 if not question_data.empty:
-                    # 根据问题类型选择正确的project name列
+                    # Select correct project name column based on question type
                     if question == 'Q6':
                         project_col = 'Initiative/output\'s name??'
                     elif question == 'Q7':

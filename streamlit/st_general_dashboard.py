@@ -9,7 +9,7 @@ from typing import Dict, Any
 
 # Try to import unified style module
 try:
-    from st_styles import style_manager, create_chart, apply_page_style, create_metrics, create_table
+    from st_styles import style_manager, create_chart, apply_page_style, create_table
     STYLES_AVAILABLE = True
 except ImportError:
     STYLES_AVAILABLE = False
@@ -128,7 +128,6 @@ class GeneralDataProcessor:
         
         self.csv_file_path = csv_file_path
         self.questions_data = {}
-        self.analysis_results = None
         self.unique_users_count = 0
         self.load_data()
         self._load_user_data()
@@ -162,44 +161,19 @@ class GeneralDataProcessor:
                 print(f"General Survey Data loaded: {len(self.questions_data)} questions")
                 
                 self._merge_other_options()
-                self._process_analysis_results()
             else:
                 st.error("No valid data found in the file")
                 print("General Survey Data loading failed: No data")
                 self.questions_data = {}
-                self.analysis_results = None
                 
         except Exception as e:
             st.error(f"Error loading data: {e}")
             print(f"General Survey Data loading failed: {e}")
             self.questions_data = {}
-            self.analysis_results = None
 
     def _process_analysis_results(self):
-        if not self.questions_data:
-            self.analysis_results = None
-            return
-        
-        total_questions = len(self.questions_data)
-        total_responses = 0
-        max_responses = 0
-        avg_responses = 0
-        
-        for question, options_data in self.questions_data.items():
-            if isinstance(options_data, dict):
-                question_total = sum(count for count in options_data.values() if isinstance(count, (int, float)))
-                total_responses += question_total
-                max_responses = max(max_responses, question_total)
-        
-        if total_questions > 0:
-            avg_responses = total_responses / total_questions
-        
-        self.analysis_results = {
-            'total_questions': total_questions,
-            'total_responses': total_responses,
-            'max_responses': max_responses,
-            'avg_responses': round(avg_responses, 1)
-        }
+        """This method is no longer needed as we don't display summary statistics"""
+        pass
 
     def _merge_other_options(self):
         if not self.questions_data:
