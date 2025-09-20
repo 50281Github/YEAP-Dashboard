@@ -23,9 +23,9 @@ st.markdown("""
 st.markdown('<h1 class="main-title">Data Analysis Dashboard</h1>', unsafe_allow_html=True)
 
 PAGES = {
-    "General Survey Analysis": st_general_dashboard,
-    "Specialized Analysis (Q3-Q5)": st_q345_dashboard,
-    "Specialized Analysis (Q6-Q11)": st_q6q7q10q11_dashboard,
+    "📊 General Survey Analysis": st_general_dashboard,
+    "🔍 Specialized Analysis": st_q345_dashboard,
+    "📈 Advanced Analysis": st_q6q7q10q11_dashboard,
 }
 
 st.sidebar.title("Navigation")
