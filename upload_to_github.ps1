@@ -1,12 +1,12 @@
 # YEAP Dashboard - GitHub Upload Script (PowerShell Version)
-# 使用方法: 在项目根目录右键 -> "在此处打开PowerShell窗口" -> 运行 .\upload_to_github.ps1
+# Usage: Right-click project folder -> "Open PowerShell window here" -> Run .\upload_to_github.ps1
 
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "YEAP Dashboard - GitHub Upload Script" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
-# 检查是否在正确的目录
+# Check if we're in the correct directory
 if (-not (Test-Path "streamlit")) {
     Write-Host "Error: Please run this script from the YEAP-9-19 project root directory" -ForegroundColor Red
     Write-Host "Current directory: $(Get-Location)" -ForegroundColor Yellow
@@ -15,12 +15,12 @@ if (-not (Test-Path "streamlit")) {
 }
 
 try {
-    # Step 1: 检查Git状态
+    # Step 1: Check Git status
     Write-Host "Step 1: Checking Git status..." -ForegroundColor Green
     git status
     Write-Host ""
 
-    # Step 2: 添加所有更改
+    # Step 2: Add all changes
     Write-Host "Step 2: Adding all changes to Git..." -ForegroundColor Green
     git add .
     if ($LASTEXITCODE -ne 0) {
@@ -29,7 +29,7 @@ try {
     Write-Host "Files added successfully!" -ForegroundColor Green
     Write-Host ""
 
-    # Step 3: 提交更改
+    # Step 3: Commit changes
     Write-Host "Step 3: Committing changes..." -ForegroundColor Green
     $commitMessage = Read-Host "Enter commit message (or press Enter for default)"
     if ([string]::IsNullOrWhiteSpace($commitMessage)) {
@@ -43,7 +43,7 @@ try {
     Write-Host "Changes committed successfully!" -ForegroundColor Green
     Write-Host ""
 
-    # Step 4: 推送到GitHub
+    # Step 4: Push to GitHub
     Write-Host "Step 4: Pushing to GitHub..." -ForegroundColor Green
     Write-Host "Attempting normal push first..." -ForegroundColor Yellow
     
@@ -69,7 +69,7 @@ try {
     }
     Write-Host ""
 
-    # 成功完成
+    # Success completion
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host "Upload completed successfully!" -ForegroundColor Green
     Write-Host "Your YEAP Dashboard has been uploaded to:" -ForegroundColor Green
