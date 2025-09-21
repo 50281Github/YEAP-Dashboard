@@ -159,88 +159,207 @@ class StreamlitStyleManager:
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }}
         
-        /* Select box styles */
+        /* Select box styles - Force text wrapping with highest priority */
         .stSelectbox > div > div {{
             background-color: var(--background-color);
             border: 1px solid var(--border-color);
             border-radius: 4px;
         }}
         
-        /* Select box main container - prevent truncation */
-        .stSelectbox {{
-            width: 100% !important;
-        }}
-        
-        /* Select box dropdown options - enable text wrapping and auto height */
-        .stSelectbox [data-baseweb="select"] {{
-            width: 100% !important;
-            min-width: 200px !important;
-        }}
-        
-        .stSelectbox [data-baseweb="select"] > div {{
-            white-space: normal !important;
+        /* CRITICAL: Universal text wrapping for all selectbox elements - including keyed selectboxes */
+        .stSelectbox,
+        .stSelectbox *,
+        .stSelectbox div,
+        .stSelectbox span,
+        .stSelectbox [role="option"],
+        .stSelectbox [data-baseweb="select"],
+        .stSelectbox [data-baseweb="single-value"],
+        .stSelectbox [data-baseweb="input"],
+        .stSelectbox [data-baseweb="input-container"],
+        .stSelectbox [data-baseweb="base-input"],
+        div[data-testid*="stSelectbox"],
+        div[data-testid*="stSelectbox"] *,
+        div[data-testid*="stSelectbox"] div,
+        div[data-testid*="stSelectbox"] span,
+        div[data-testid="stSelectbox"],
+        div[data-testid="stSelectbox"] *,
+        div[data-testid="stSelectbox"] div,
+        div[data-testid="stSelectbox"] span,
+        [data-testid*="selectbox"],
+        [data-testid*="selectbox"] *,
+        [data-testid*="selectbox"] div,
+        [data-testid*="selectbox"] span {{
+            white-space: pre-wrap !important;
             word-wrap: break-word !important;
             overflow-wrap: break-word !important;
-            min-height: auto !important;
-            height: auto !important;
-            line-height: 1.4 !important;
-            padding: 8px 12px !important;
-            overflow: visible !important;
+            word-break: break-word !important;
             text-overflow: unset !important;
-        }}
-        
-        /* Select box dropdown menu */
-        .stSelectbox [data-baseweb="popover"] {{
+            overflow: visible !important;
             max-width: none !important;
             width: auto !important;
-            min-width: 300px !important;
-        }}
-        
-        /* Select box dropdown options in the menu */
-        .stSelectbox [data-baseweb="menu"] {{
-            max-width: none !important;
-            width: auto !important;
-            min-width: 300px !important;
-        }}
-        
-        .stSelectbox [data-baseweb="menu"] [role="option"] {{
-            white-space: normal !important;
-            word-wrap: break-word !important;
-            overflow-wrap: break-word !important;
-            min-height: auto !important;
             height: auto !important;
-            line-height: 1.4 !important;
-            padding: 12px 16px !important;
-            max-width: none !important;
-            overflow: visible !important;
-            text-overflow: unset !important;
-        }}
-        
-        /* Selected option display */
-        .stSelectbox [data-baseweb="select"] [data-baseweb="base-input"] {{
-            white-space: normal !important;
-            word-wrap: break-word !important;
-            overflow-wrap: break-word !important;
             min-height: auto !important;
+        }}
+        
+        /* Select box main container - enhanced targeting */
+        .stSelectbox,
+        div[data-testid*="stSelectbox"],
+        div[data-testid="stSelectbox"],
+        [data-testid*="selectbox"] {{
+            width: 100% !important;
+            min-width: 350px !important;
+            max-width: 100% !important;
+        }}
+        
+        /* Select box root element - enhanced targeting */
+        .stSelectbox [data-baseweb="select"],
+        div[data-testid*="stSelectbox"] [data-baseweb="select"],
+        div[data-testid="stSelectbox"] [data-baseweb="select"],
+        [data-testid*="selectbox"] [data-baseweb="select"] {{
+            width: 100% !important;
+            min-width: 350px !important;
+            max-width: 100% !important;
             height: auto !important;
-            line-height: 1.4 !important;
-            overflow: visible !important;
-            text-overflow: unset !important;
+            min-height: 60px !important;
         }}
         
-        /* Input container */
-        .stSelectbox [data-baseweb="select"] [data-baseweb="input"] {{
-            white-space: normal !important;
-            overflow: visible !important;
-            text-overflow: unset !important;
-        }}
-        
-        /* Value container */
-        .stSelectbox [data-baseweb="select"] [data-baseweb="input"] > div {{
-            white-space: normal !important;
-            overflow: visible !important;
-            text-overflow: unset !important;
+        /* Main select container - enhanced targeting */
+        .stSelectbox [data-baseweb="select"] > div,
+        div[data-testid*="stSelectbox"] [data-baseweb="select"] > div,
+        div[data-testid="stSelectbox"] [data-baseweb="select"] > div,
+        [data-testid*="selectbox"] [data-baseweb="select"] > div {{
+            min-height: 60px !important;
+            height: auto !important;
+            line-height: 1.8 !important;
+            padding: 15px 20px !important;
+            display: flex !important;
+            align-items: flex-start !important;
             flex-wrap: wrap !important;
+        }}
+        
+        /* Dropdown menu container - enhanced targeting */
+        .stSelectbox [data-baseweb="popover"],
+        div[data-testid*="stSelectbox"] [data-baseweb="popover"],
+        div[data-testid="stSelectbox"] [data-baseweb="popover"],
+        [data-testid*="selectbox"] [data-baseweb="popover"] {{
+            max-width: none !important;
+            width: auto !important;
+            min-width: 450px !important;
+            z-index: 9999 !important;
+        }}
+        
+        /* Dropdown menu list - enhanced targeting */
+        .stSelectbox [data-baseweb="menu"],
+        div[data-testid*="stSelectbox"] [data-baseweb="menu"],
+        div[data-testid="stSelectbox"] [data-baseweb="menu"],
+        [data-testid*="selectbox"] [data-baseweb="menu"] {{
+            max-width: none !important;
+            width: auto !important;
+            min-width: 450px !important;
+            max-height: 400px !important;
+            overflow-y: auto !important;
+        }}
+        
+        /* Individual dropdown options - enhanced targeting */
+        .stSelectbox [data-baseweb="menu"] [role="option"],
+        div[data-testid*="stSelectbox"] [data-baseweb="menu"] [role="option"],
+        div[data-testid="stSelectbox"] [data-baseweb="menu"] [role="option"],
+        [data-testid*="selectbox"] [data-baseweb="menu"] [role="option"] {{
+            line-height: 1.8 !important;
+            padding: 18px 24px !important;
+            display: block !important;
+        }}
+        
+        /* Selected option display - enhanced targeting */
+        .stSelectbox [data-baseweb="select"] [data-baseweb="base-input"],
+        div[data-testid*="stSelectbox"] [data-baseweb="select"] [data-baseweb="base-input"],
+        div[data-testid="stSelectbox"] [data-baseweb="select"] [data-baseweb="base-input"],
+        [data-testid*="selectbox"] [data-baseweb="select"] [data-baseweb="base-input"] {{
+            line-height: 1.8 !important;
+            flex: 1 !important;
+        }}
+        
+        /* Input container - enhanced targeting */
+        .stSelectbox [data-baseweb="select"] [data-baseweb="input"],
+        div[data-testid*="stSelectbox"] [data-baseweb="select"] [data-baseweb="input"],
+        div[data-testid="stSelectbox"] [data-baseweb="select"] [data-baseweb="input"],
+        [data-testid*="selectbox"] [data-baseweb="select"] [data-baseweb="input"] {{
+            height: auto !important;
+            min-height: 60px !important;
+            display: flex !important;
+            align-items: flex-start !important;
+        }}
+        
+        /* Value container - enhanced targeting */
+        .stSelectbox [data-baseweb="select"] [data-baseweb="input"] > div,
+        div[data-testid*="stSelectbox"] [data-baseweb="select"] [data-baseweb="input"] > div,
+        div[data-testid="stSelectbox"] [data-baseweb="select"] [data-baseweb="input"] > div,
+        [data-testid*="selectbox"] [data-baseweb="select"] [data-baseweb="input"] > div {{
+            flex-wrap: wrap !important;
+            flex: 1 !important;
+        }}
+        
+        /* Input container inner - enhanced targeting */
+        .stSelectbox [data-baseweb="select"] [data-baseweb="input"] [data-baseweb="input-container"],
+        div[data-testid*="stSelectbox"] [data-baseweb="select"] [data-baseweb="input"] [data-baseweb="input-container"],
+        div[data-testid="stSelectbox"] [data-baseweb="select"] [data-baseweb="input"] [data-baseweb="input-container"],
+        [data-testid*="selectbox"] [data-baseweb="select"] [data-baseweb="input"] [data-baseweb="input-container"] {{
+            min-height: 40px !important;
+            flex: 1 !important;
+        }}
+        
+        /* Single value display - MOST IMPORTANT for selected text - enhanced targeting */
+        .stSelectbox [data-baseweb="select"] [data-baseweb="single-value"],
+        div[data-testid*="stSelectbox"] [data-baseweb="select"] [data-baseweb="single-value"],
+        div[data-testid="stSelectbox"] [data-baseweb="select"] [data-baseweb="single-value"],
+        [data-testid*="selectbox"] [data-baseweb="select"] [data-baseweb="single-value"] {{
+            display: block !important;
+            line-height: 1.8 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }}
+        
+        /* Placeholder text - enhanced targeting */
+        .stSelectbox [data-baseweb="select"] [data-baseweb="placeholder"],
+        div[data-testid*="stSelectbox"] [data-baseweb="select"] [data-baseweb="placeholder"],
+        div[data-testid="stSelectbox"] [data-baseweb="select"] [data-baseweb="placeholder"],
+        [data-testid*="selectbox"] [data-baseweb="select"] [data-baseweb="placeholder"] {{
+            line-height: 1.8 !important;
+        }}
+        
+        /* Dropdown arrow positioning - enhanced targeting */
+        .stSelectbox [data-baseweb="select"] [data-baseweb="select-arrow"],
+        div[data-testid*="stSelectbox"] [data-baseweb="select"] [data-baseweb="select-arrow"],
+        div[data-testid="stSelectbox"] [data-baseweb="select"] [data-baseweb="select-arrow"],
+        [data-testid*="selectbox"] [data-baseweb="select"] [data-baseweb="select-arrow"] {{
+            flex-shrink: 0 !important;
+            margin-left: 15px !important;
+            align-self: flex-start !important;
+            margin-top: 6px !important;
+        }}
+        
+        /* Force override any conflicting styles - enhanced targeting */
+        .stSelectbox [data-baseweb="select"] [data-baseweb="single-value"],
+        .stSelectbox [data-baseweb="select"] [data-baseweb="single-value"] > div,
+        .stSelectbox [data-baseweb="select"] [data-baseweb="single-value"] span,
+        div[data-testid*="stSelectbox"] [data-baseweb="select"] [data-baseweb="single-value"],
+        div[data-testid*="stSelectbox"] [data-baseweb="select"] [data-baseweb="single-value"] > div,
+        div[data-testid*="stSelectbox"] [data-baseweb="select"] [data-baseweb="single-value"] span,
+        div[data-testid="stSelectbox"] [data-baseweb="select"] [data-baseweb="single-value"],
+        div[data-testid="stSelectbox"] [data-baseweb="select"] [data-baseweb="single-value"] > div,
+        div[data-testid="stSelectbox"] [data-baseweb="select"] [data-baseweb="single-value"] span,
+        [data-testid*="selectbox"] [data-baseweb="select"] [data-baseweb="single-value"],
+        [data-testid*="selectbox"] [data-baseweb="select"] [data-baseweb="single-value"] > div,
+        [data-testid*="selectbox"] [data-baseweb="select"] [data-baseweb="single-value"] span {{
+            white-space: pre-wrap !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
+            text-overflow: unset !important;
+            overflow: visible !important;
+            max-width: none !important;
+            width: auto !important;
+            display: block !important;
         }}
         
         /* Title styles */

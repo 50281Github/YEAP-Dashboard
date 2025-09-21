@@ -470,73 +470,111 @@ def create_layout():
     /* Select box dropdown options - enable text wrapping and auto height */
     .stSelectbox [data-baseweb="select"] {{
         width: 100% !important;
-        min-width: 200px !important;
+        min-width: 300px !important;
+        max-width: 100% !important;
     }}
     
+    /* Main select container - allow multi-line text */
     .stSelectbox [data-baseweb="select"] > div {{
         white-space: normal !important;
         word-wrap: break-word !important;
         overflow-wrap: break-word !important;
-        min-height: auto !important;
+        min-height: 40px !important;
         height: auto !important;
         line-height: 1.4 !important;
         padding: 8px 12px !important;
         overflow: visible !important;
         text-overflow: unset !important;
+        display: flex !important;
+        align-items: flex-start !important;
     }}
     
-    /* Select box dropdown menu */
+    /* Select box dropdown menu container */
     .stSelectbox [data-baseweb="popover"] {{
         max-width: none !important;
         width: auto !important;
-        min-width: 300px !important;
+        min-width: 400px !important;
+        max-width: 90vw !important;
     }}
     
     /* Select box dropdown options in the menu */
     .stSelectbox [data-baseweb="menu"] {{
         max-width: none !important;
         width: auto !important;
-        min-width: 300px !important;
+        min-width: 400px !important;
+        max-width: 90vw !important;
     }}
     
+    /* Individual dropdown options - enhanced text wrapping */
     .stSelectbox [data-baseweb="menu"] [role="option"] {{
         white-space: normal !important;
         word-wrap: break-word !important;
         overflow-wrap: break-word !important;
-        min-height: auto !important;
+        min-height: 40px !important;
         height: auto !important;
         line-height: 1.4 !important;
         padding: 12px 16px !important;
         max-width: none !important;
         overflow: visible !important;
         text-overflow: unset !important;
+        display: flex !important;
+        align-items: flex-start !important;
+        word-break: break-word !important;
     }}
     
-    /* Selected option display */
+    /* Selected option display - enhanced for long text */
     .stSelectbox [data-baseweb="select"] [data-baseweb="base-input"] {{
         white-space: normal !important;
         word-wrap: break-word !important;
         overflow-wrap: break-word !important;
-        min-height: auto !important;
+        min-height: 40px !important;
         height: auto !important;
         line-height: 1.4 !important;
         overflow: visible !important;
         text-overflow: unset !important;
+        display: flex !important;
+        align-items: flex-start !important;
+        word-break: break-word !important;
     }}
     
-    /* Input container */
+    /* Input container - allow text wrapping */
     .stSelectbox [data-baseweb="select"] [data-baseweb="input"] {{
         white-space: normal !important;
         overflow: visible !important;
         text-overflow: unset !important;
+        min-height: 40px !important;
+        height: auto !important;
+        display: flex !important;
+        align-items: flex-start !important;
+        word-break: break-word !important;
     }}
     
-    /* Value container */
+    /* Value container - enhanced for multi-line display */
     .stSelectbox [data-baseweb="select"] [data-baseweb="input"] > div {{
         white-space: normal !important;
         overflow: visible !important;
         text-overflow: unset !important;
         flex-wrap: wrap !important;
+        min-height: 24px !important;
+        height: auto !important;
+        line-height: 1.4 !important;
+        word-break: break-word !important;
+        display: flex !important;
+        align-items: flex-start !important;
+    }}
+    
+    /* Additional styling for better text display */
+    .stSelectbox [data-baseweb="select"] [data-baseweb="input"] [data-baseweb="input-container"] {{
+        min-height: 40px !important;
+        height: auto !important;
+        display: flex !important;
+        align-items: flex-start !important;
+    }}
+    
+    /* Ensure dropdown arrow doesn't interfere with text */
+    .stSelectbox [data-baseweb="select"] [data-baseweb="select-arrow"] {{
+        align-self: flex-start !important;
+        margin-top: 8px !important;
     }}
     
     /* Title styling */

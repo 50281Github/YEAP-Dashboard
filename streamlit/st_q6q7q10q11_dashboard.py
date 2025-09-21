@@ -584,6 +584,8 @@ def create_layout():
             layout="wide"
         )
     
+
+    
     # Define base_path
     base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
@@ -602,44 +604,82 @@ def create_layout():
     filtered_user_ids = None
     
     try:
-        # Load original data for region filtering from actual data files
-        # Get absolute path of project root directory
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        project_root = os.path.dirname(current_dir)
-        
-        data_files = [
-            os.path.join(project_root, 'orignaldata', 'PART3_base_dataQ6.csv'),
-            os.path.join(project_root, 'orignaldata', 'PART3_base_dataQ7.csv'),
-            os.path.join(project_root, 'orignaldata', 'PART3_base_dataQ10.csv'),
-            os.path.join(project_root, 'orignaldata', 'PART3_base_dataQ11.csv')
-        ]
-        
-        combined_original_data = []
-        for file_path in data_files:
-            if os.path.exists(file_path):
-                df = pd.read_csv(file_path)
-                if 'Department/Region' in df.columns:
-                    regions_set.update(df['Department/Region'].dropna().unique())
-                    has_region_data = True
-                    combined_original_data.append(df)
-                elif 'Department/Region' in df.columns:  # Chinese column name
-                    regions_set.update(df['Department/Region'].dropna().unique())
-                    has_region_data = True
-                    combined_original_data.append(df)
-        
-        # Combine all original data
-        if combined_original_data:
-            original_data = pd.concat(combined_original_data, ignore_index=True, sort=False)
+        # If global shared selection exists, reuse it
+        if 'selected_region' in st.session_state and 'regions_options' in st.session_state:
+            selected_region = st.session_state['selected_region']
+            regions = st.session_state['regions_options']
+            has_region_data = True
+            # Build original_data from PART3 files still needed for filtering and counts
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            project_root = os.path.dirname(current_dir)
+            data_files = [
+                os.path.join(project_root, 'orignaldata', 'PART3_base_dataQ6.csv'),
+                os.path.join(project_root, 'orignaldata', 'PART3_base_dataQ7.csv'),
+                os.path.join(project_root, 'orignaldata', 'PART3_base_dataQ10.csv'),
+                os.path.join(project_root, 'orignaldata', 'PART3_base_dataQ11.csv')
+            ]
+            combined_original_data = []
+            for file_path in data_files:
+                if os.path.exists(file_path):
+                    df = pd.read_csv(file_path)
+                    if 'Department/Region' in df.columns:
+                        combined_original_data.append(df)
+            if combined_original_data:
+                original_data = pd.concat(combined_original_data, ignore_index=True, sort=False)
+            else:
+                original_data = pd.DataFrame()
         else:
-            original_data = pd.DataFrame()
-        
-        if has_region_data and regions_set:
-            regions = ['All'] + sorted(list(regions_set))
-            selected_region = st.sidebar.selectbox("Select Organizational Unit", regions)
-        elif has_region_data and not regions_set:
-            st.sidebar.info("Regional filtering not available - no region data found.")
-        else:
-            st.sidebar.info("Regional filtering not available - data file not found.")
+            # Fallback to local construction (original logic)
+            # Get absolute path of project root directory
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            project_root = os.path.dirname(current_dir)
+            
+            data_files = [
+                os.path.join(project_root, 'orignaldata', 'PART3_base_dataQ6.csv'),
+                os.path.join(project_root, 'orignaldata', 'PART3_base_dataQ7.csv'),
+                os.path.join(project_root, 'orignaldata', 'PART3_base_dataQ10.csv'),
+                os.path.join(project_root, 'orignaldata', 'PART3_base_dataQ11.csv')
+            ]
+            
+            combined_original_data = []
+            for file_path in data_files:
+                if os.path.exists(file_path):
+                    df = pd.read_csv(file_path)
+                    if 'Department/Region' in df.columns:
+                        regions_set.update(df['Department/Region'].dropna().unique())
+                        has_region_data = True
+                        combined_original_data.append(df)
+                    elif 'Department/Region' in df.columns:  # Chinese column name
+                        regions_set.update(df['Department/Region'].dropna().unique())
+                        has_region_data = True
+                        combined_original_data.append(df)
+            
+            # Combine all original data
+            if combined_original_data:
+                original_data = pd.concat(combined_original_data, ignore_index=True, sort=False)
+            else:
+                original_data = pd.DataFrame()
+            
+            if has_region_data and regions_set:
+                regions = ['All'] + sorted(list(regions_set))
+
+                # Improve display: insert soft wrap opportunities so long texts can wrap gracefully
+                def _wrap_label(s):
+                    s = str(s)
+                    # Insert zero-width space after common separators to allow wrapping
+                    for ch in ['/', '\\', '-', '—', '–', '_', ' ', '（', '）', '(', ')', ':', '：', ',', '·']:
+                        s = s.replace(ch, ch + '\u200B')
+                    return s
+
+                selected_region = st.sidebar.selectbox(
+                    "Select Organizational Unit",
+                    regions,
+                    format_func=_wrap_label
+                )
+            elif has_region_data and not regions_set:
+                st.sidebar.info("Regional filtering not available - no region data found.")
+            else:
+                st.sidebar.info("Regional filtering not available - data file not found.")
     except Exception as e:
         st.sidebar.info(f"Regional filtering not available - error: {str(e)}")
     
@@ -684,6 +724,14 @@ def create_layout():
     
     if works_count_data:
         # Create question label mapping consistent with Dash version - optimized line break display
+
+        # Helper used for any selectbox to add soft-wrapping opportunities
+        def _wrap_label(s):
+            s = str(s)
+            for ch in ['/', '\\', '-', '—', '–', '_', ' ', '（', '）', '(', ')', ':', '：', ',', '·']:
+                s = s.replace(ch, ch + '\u200B')
+            return s
+
         question_labels = {
             'Q6': 'Knowledge development & dissemination',
             'Q7': 'Technical assistance', 
@@ -1129,7 +1177,8 @@ def create_layout():
                         options=[10, 25, 50, 100, 200],
                         index=[10, 25, 50, 100, 200].index(items_per_page) if items_per_page in [10, 25, 50, 100, 200] else 2,
                         key="items_per_page",
-                        label_visibility="collapsed"
+                        label_visibility="collapsed",
+                        format_func=lambda x: str(x)
                     )
                     st.caption("Items per page")
                     

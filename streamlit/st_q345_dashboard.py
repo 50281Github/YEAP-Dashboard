@@ -51,7 +51,12 @@ def create_layout():
         
         # Check if region data exists
         has_region_data = False
-        if 'Department/Region' in q3_data.columns:
+        if 'selected_region' in st.session_state and 'regions_options' in st.session_state:
+            # Use globally shared selection
+            regions = st.session_state['regions_options']
+            selected_region = st.session_state['selected_region']
+            has_region_data = True
+        elif 'Department/Region' in q3_data.columns:
             regions = ['All'] + sorted(q3_data['Department/Region'].dropna().unique().tolist())
             selected_region = st.sidebar.selectbox("Select Organizational Unit", regions)
             has_region_data = True
