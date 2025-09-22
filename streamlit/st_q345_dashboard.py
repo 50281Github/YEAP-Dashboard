@@ -34,7 +34,6 @@ def create_layout():
     st.markdown("---")
 
     # Add region filtering functionality
-    st.sidebar.header("Filters")
     
     # Read original data files directly
     try:

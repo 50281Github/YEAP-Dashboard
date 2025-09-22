@@ -594,7 +594,6 @@ def create_layout():
     st.markdown("---")
 
     # Add region filtering functionality - moved before data processor initialization
-    st.sidebar.header("Filters")
     
     # Check if region data exists
     has_region_data = False
