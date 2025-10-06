@@ -8,7 +8,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from typing import Dict, Any
 
-# Try to import unified style  module
+# Try to import unified style module
 try:
     from st_styles import style_manager, create_chart, apply_page_style, create_table
     STYLES_AVAILABLE = True

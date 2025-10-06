@@ -21,7 +21,7 @@ def safe_read_csv(file_path):
         except UnicodeDecodeError:
             continue
     
-    # If all encodings fail, try without specifying  encoding
+    # If all encodings fail, try without specifying   encoding
     try:
         return pd.read_csv(file_path)
     except Exception as e:

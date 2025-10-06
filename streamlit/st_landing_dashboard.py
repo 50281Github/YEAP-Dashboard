@@ -4,7 +4,7 @@ import base64
 import pandas as pd
 import plotly.graph_objects as go
 
-# Try to apply unified  page style if available
+# Try to apply unified  page  style if available
 try:
     from st_styles import apply_page_style, create_chart
     STYLES_AVAILABLE = True

@@ -7,7 +7,7 @@ import sys
 import base64
 from typing import Dict, Any, List
 
-# Import unified style  module
+# Import unified style   module
 try:
     from st_styles import style_manager, create_chart, apply_page_style, create_metrics, create_table, create_standardized_chart
     STYLES_AVAILABLE = True
