@@ -394,6 +394,25 @@ class StreamlitStyleManager:
             margin: 20px 0;
         }}
         
+        /* Q3-Q4-Q5 Summary Table symbol styles */
+        .summary-table td {{
+            font-size: 16px !important;
+        }}
+        
+        .summary-table td:contains('○'),
+        .summary-table td:contains('×') {{
+            font-size: 20px !important;
+            font-weight: bold !important;
+            text-align: center !important;
+        }}
+        
+        /* Alternative approach for symbol styling */
+        .symbol-cell {{
+            font-size: 20px !important;
+            font-weight: bold !important;
+            text-align: center !important;
+        }}
+        
         /* Sidebar styles */
         .css-1d391kg {{
             background-color: var(--light-color);

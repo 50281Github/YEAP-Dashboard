@@ -421,7 +421,7 @@ def create_html_table_with_headers(df, original_data):
         color: #0066cc;
     }
     </style>
-    <table class="q345-table">
+    <table class="q345-table summary-table">
     """
     
     # Create title header row
@@ -464,17 +464,32 @@ def create_html_table_with_headers(df, original_data):
         # Add Q3 data
         for col in q3_cols:
             value = row[col] if col in row else ""
-            html += f'<td class="data-cell">{value}</td>'
+            # Convert Yes/No to ○/× symbols
+            if value == "Yes":
+                display_value = "○"
+            else:
+                display_value = "×"  # No and empty values show as ×
+            html += f'<td class="data-cell symbol-cell">{display_value}</td>'
         
         # Add Q4 data
         for col in q4_cols:
             value = row[col] if col in row else ""
-            html += f'<td class="data-cell">{value}</td>'
+            # Convert Yes/No to ○/× symbols
+            if value == "Yes":
+                display_value = "○"
+            else:
+                display_value = "×"  # No and empty values show as ×
+            html += f'<td class="data-cell symbol-cell">{display_value}</td>'
         
         # Add Q5 data
         for col in q5_cols:
             value = row[col] if col in row else ""
-            html += f'<td class="data-cell">{value}</td>'
+            # Convert Yes/No to ○/× symbols
+            if value == "Yes":
+                display_value = "○"
+            else:
+                display_value = "×"  # No and empty values show as ×
+            html += f'<td class="data-cell symbol-cell">{display_value}</td>'
         
         html += "</tr>"
     
