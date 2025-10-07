@@ -595,7 +595,7 @@ def create_layout():
     if q2_data:
         q2_chart = create_q2_chart(q2_data)
         if q2_chart:
-            st.plotly_chart(q2_chart, width='stretch', config={'displayModeBar': False})
+            st.plotly_chart(q2_chart, use_container_width=True, config={'displayModeBar': False})
         else:
             st.error("Failed to create Q2 chart")
     else:
