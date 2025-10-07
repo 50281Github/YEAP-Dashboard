@@ -1048,25 +1048,60 @@ def create_layout():
         }
     }
     
-    # Create theme-based layout
-    for question, theme_info in themes.items():
-        # Theme header
-        st.markdown(f"""
-        <div style="background-color: {theme_info['color']}; padding: 15px; border-radius: 10px; margin: 20px 0;">
-            <h2 style="color: #2c3e50; margin: 0;">{theme_info['title']}</h2>
+    # Add section filter selectbox
+    st.markdown("### 📋 Select Analysis Section")
+    section_options = [
+        "Outputs Count Statistics",
+        "📚 Knowledge Development & Dissemination", 
+        "🔧 Technical Assistance",
+        "🎓 Capacity Development",
+        "🤝 Advocacy & Partnerships"
+    ]
+    
+    selected_section = st.selectbox(
+        "Choose the section to analyze:",
+        section_options,
+        index=0
+    )
+    
+    st.markdown("---")
+    
+    # Display content based on selected section
+    if selected_section == "Outputs Count Statistics":
+        # Section 1: Outputs Count Statistics only
+        st.markdown("""
+        <div style="background-color: #e8f4fd; padding: 15px; border-radius: 10px; margin: 20px 0;">
+            <h2 style="color: #2c3e50; margin: 0;">📊 Outputs Count Statistics</h2>
         </div>
         """, unsafe_allow_html=True)
         
-        # Section 1: Count Statistics with transparency effect
-        st.subheader("✅ Outputs Count Statistics")
         if works_count_data:
-            count_fig = create_theme_count_chart(works_count_data, current_theme=question)
+            count_fig = create_theme_count_chart(works_count_data, current_theme=None)
             if count_fig:
                 st.plotly_chart(count_fig, use_container_width=True)
             else:
                 st.info("No count statistics data available.")
         else:
             st.info("No count statistics data available.")
+    
+    else:
+        # Find the corresponding theme for the selected section
+        theme_mapping = {
+            "📚 Knowledge Development & Dissemination": "Q6",
+            "🔧 Technical Assistance": "Q7", 
+            "🎓 Capacity Development": "Q10",
+            "🤝 Advocacy & Partnerships": "Q11"
+        }
+        
+        question = theme_mapping[selected_section]
+        theme_info = themes[question]
+        
+        # Theme header
+        st.markdown(f"""
+        <div style="background-color: {theme_info['color']}; padding: 15px; border-radius: 10px; margin: 20px 0;">
+            <h2 style="color: #2c3e50; margin: 0;">{theme_info['title']}</h2>
+        </div>
+        """, unsafe_allow_html=True)
         
         # Section 2: Frequency Analysis
         st.subheader("📊 Frequency Analysis")
@@ -1192,9 +1227,6 @@ def create_layout():
                     st.rerun()
         else:
             st.info(f"No detail data available for {theme_info['title']}")
-        
-        # Add separator between themes
-        st.markdown("---")
 
 if __name__ == "__main__":
     create_layout()
