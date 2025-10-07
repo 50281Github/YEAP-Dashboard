@@ -464,31 +464,31 @@ def create_html_table_with_headers(df, original_data):
         # Add Q3 data
         for col in q3_cols:
             value = row[col] if col in row else ""
-            # Convert Yes/No to ○/× symbols
+            # Only show ○ for Yes values, empty for others
             if value == "Yes":
                 display_value = "○"
             else:
-                display_value = "×"  # No and empty values show as ×
+                display_value = ""  # No and empty values show as empty
             html += f'<td class="data-cell symbol-cell">{display_value}</td>'
         
         # Add Q4 data
         for col in q4_cols:
             value = row[col] if col in row else ""
-            # Convert Yes/No to ○/× symbols
+            # Only show ○ for Yes values, empty for others
             if value == "Yes":
                 display_value = "○"
             else:
-                display_value = "×"  # No and empty values show as ×
+                display_value = ""  # No and empty values show as empty
             html += f'<td class="data-cell symbol-cell">{display_value}</td>'
         
         # Add Q5 data
         for col in q5_cols:
             value = row[col] if col in row else ""
-            # Convert Yes/No to ○/× symbols
+            # Only show ○ for Yes values, empty for others
             if value == "Yes":
                 display_value = "○"
             else:
-                display_value = "×"  # No and empty values show as ×
+                display_value = ""  # No and empty values show as empty
             html += f'<td class="data-cell symbol-cell">{display_value}</td>'
         
         html += "</tr>"

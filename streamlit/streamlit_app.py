@@ -86,12 +86,16 @@ try:
     # Build options: All + sorted years desc (as strings)
     year_options = ['All'] + sorted(year_values, reverse=True)
     if len(year_options) == 1:  # Only 'All'
-        year_options = ['All', '2024']  # Fallback default
+        year_options = ['All', '2025']  # Fallback default to 2025
 
     st.sidebar.header("Global Filters")
     
-    # Set default to most recent year if available, otherwise 'All'
-    default_index = 1 if len(year_options) > 1 else 0
+    # Set default to 2025 if available, otherwise most recent year, otherwise 'All'
+    default_index = 0  # Default to 'All'
+    if '2025' in year_options:
+        default_index = year_options.index('2025')
+    elif len(year_options) > 1:
+        default_index = 1  # Most recent year if 2025 not available
     
     selected_year = st.sidebar.selectbox(
         "Select Year",
