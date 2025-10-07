@@ -603,7 +603,7 @@ def create_layout():
     
     st.markdown("---")
     
-    # Add Q3-Q4-Q5 summary table as the second chart
+    # Add Q3-Q4-Q5 summary  table as the second chart
     st.subheader("📋 Q3-Q4-Q5 Summary Table")
     
     # Load and display Q3-Q4-Q5 data

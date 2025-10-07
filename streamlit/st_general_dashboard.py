@@ -14,7 +14,7 @@ try:
     STYLES_AVAILABLE = True
 except ImportError:
     STYLES_AVAILABLE = False
-    # Backup color configuration
+    # Backup color  configuration
     STANDARD_COLORS = [
         '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6',
         '#1abc9c', '#34495e', '#e67e22', '#95a5a6', '#f1c40f',

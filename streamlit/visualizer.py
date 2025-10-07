@@ -8,7 +8,7 @@ from typing import Dict, Any, List, Callable
 try:
     from st_styles import style_manager
 except ImportError:
-    # If unable to import,  create simplified version
+    # If unable to  import,  create simplified version
     class StyleManager:
         def get_chart_colors(self):
             return ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6']

@@ -12,7 +12,7 @@ import pandas as pd
 class StreamlitStyleManager:
     """Streamlit style manager - responsible for global style configuration and theme management"""
     
-    # Default theme  colors
+    # Default  theme  colors
     DEFAULT_THEME_COLORS = {
         "primary": "#3498DB",
         "secondary": "#F39C12", 
