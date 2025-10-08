@@ -853,8 +853,37 @@ def create_layout():
     # Define base_path
     base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
-    st.title("📊 Specialized Analysis")
-    st.markdown("**Outputs statistics and frequency analysis across areas**")
+    # Get selected section from session state to determine page-specific titles
+    selected_section = st.session_state.get('selected_analysis_section', "Outputs Count Statistics")
+    
+    # Define page-specific titles and subtitles
+    page_titles = {
+        "Outputs Count Statistics": {
+            "title": "📊 Outputs Count Statistics",
+            "subtitle": "Overview of output counts across all analysis areas"
+        },
+        "Knowledge Development & Dissemination": {
+            "title": "📚 Knowledge Development & Dissemination",
+            "subtitle": "Analysis of knowledge development and dissemination outputs"
+        },
+        "Technical Assistance": {
+            "title": "🔧 Technical Assistance", 
+            "subtitle": "Analysis of technical assistance outputs and delivery"
+        },
+        "Capacity Development": {
+            "title": "🎓 Capacity Development",
+            "subtitle": "Analysis of capacity development programs and outcomes"
+        },
+        "Advocacy & Partnerships": {
+            "title": "🤝 Advocacy & Partnerships",
+            "subtitle": "Analysis of advocacy initiatives and partnership activities"
+        }
+    }
+    
+    # Display page-specific title and subtitle
+    current_page = page_titles.get(selected_section, page_titles["Outputs Count Statistics"])
+    st.title(current_page["title"])
+    st.markdown(f"**{current_page['subtitle']}**")
     st.markdown("---")
 
     # Add region filtering functionality - moved before data processor initialization
@@ -1048,18 +1077,9 @@ def create_layout():
         }
     }
     
-    # Get selected section from session state (set by sidebar in main app)
-    selected_section = st.session_state.get('selected_analysis_section', "📊Outputs Count Statistics")
-    
     # Display content based on selected section
-    if selected_section == "📊Outputs Count Statistics":
+    if selected_section == "Outputs Count Statistics":
         # Section 1: Outputs Count Statistics only
-        st.markdown("""
-        <div style="background-color: #e8f4fd; padding: 15px; border-radius: 10px; margin: 20px 0;">
-            <h2 style="color: #2c3e50; margin: 0;">📊 Outputs Count Statistics</h2>
-        </div>
-        """, unsafe_allow_html=True)
-        
         if works_count_data:
             count_fig = create_theme_count_chart(works_count_data, current_theme=None)
             if count_fig:
@@ -1072,10 +1092,10 @@ def create_layout():
     else:
         # Find the corresponding theme for the selected section
         theme_mapping = {
-            "📚 Knowledge Development & Dissemination": "Q6",
-            "🔧 Technical Assistance": "Q7", 
-            "🎓 Capacity Development": "Q10",
-            "🤝 Advocacy & Partnerships": "Q11"
+            "Knowledge Development & Dissemination": "Q6",
+            "Technical Assistance": "Q7", 
+            "Capacity Development": "Q10",
+            "Advocacy & Partnerships": "Q11"
         }
         
         question = theme_mapping[selected_section]

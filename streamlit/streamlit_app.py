@@ -39,7 +39,11 @@ except Exception:
 
 PAGES = {
     "🏠 Overview": st_landing_dashboard,
-    "📈 Specialized Analysis": st_q6q7q10q11_dashboard,
+    "📊 Outputs Count Statistics": st_q6q7q10q11_dashboard,
+    "📚 Knowledge Development & Dissemination": st_q6q7q10q11_dashboard,
+    "🔧 Technical Assistance": st_q6q7q10q11_dashboard,
+    "🎓 Capacity Development": st_q6q7q10q11_dashboard,
+    "🤝 Advocacy & Partnerships": st_q6q7q10q11_dashboard,
 }
 
 st.sidebar.title("Navigation")
@@ -106,7 +110,16 @@ except Exception as e:
 # ---------------------------------------------------
 
 # ---------------- Global shared filters (Organizational Unit) ----------------
-if selection in ("🔍 Specialized Analysis", "📈 Specialized Analysis",):  # Both specialized analysis pages need region filtering
+# Check if any of the specialized analysis pages are selected
+specialized_pages = [
+    "📊 Outputs Count Statistics",
+    "📚 Knowledge Development & Dissemination", 
+    "🔧 Technical Assistance",
+    "🎓 Capacity Development",
+    "🤝 Advocacy & Partnerships"
+]
+
+if selection in specialized_pages:  # Any specialized analysis page needs region filtering
     st.sidebar.header("Filters")
     try:
         # Build unified regions list from both PART2 and PART3 datasets
@@ -153,25 +166,19 @@ if selection in ("🔍 Specialized Analysis", "📈 Specialized Analysis",):  # 
     except Exception as e:
         st.sidebar.info(f"Regional filtering not available - error: {e}")
 
-# ---------------- Analysis Section Filter for Specialized Analysis ----------------
-if selection == "📈 Specialized Analysis":
-    st.sidebar.header("Analysis Section")
-    section_options = [
-        "📊Outputs Count Statistics",
-        "📚 Knowledge Development & Dissemination", 
-        "🔧 Technical Assistance",
-        "🎓 Capacity Development",
-        "🤝 Advocacy & Partnerships"
-    ]
+# Set the selected analysis section based on the current page selection
+if selection in specialized_pages:
+    # Map page selection to analysis section
+    page_to_section = {
+        "📊 Outputs Count Statistics": "Outputs Count Statistics",
+        "📚 Knowledge Development & Dissemination": "Knowledge Development & Dissemination",
+        "🔧 Technical Assistance": "Technical Assistance", 
+        "🎓 Capacity Development": "Capacity Development",
+        "🤝 Advocacy & Partnerships": "Advocacy & Partnerships"
+    }
     
-    selected_section = st.sidebar.selectbox(
-        "Select Analysis Section",
-        section_options,
-        index=0,
-        key="selected_analysis_section"
-    )
-    # Expose to pages
-    st.session_state['analysis_section_options'] = section_options
+    # Set the selected section in session state
+    st.session_state['selected_analysis_section'] = page_to_section[selection]
 # ---------------------------------------------------------------------------
 
 # Check if the selected page has a create_layout function
