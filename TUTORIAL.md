@@ -8,7 +8,7 @@
 
 - **Git**: 用于版本控制和与 GitHub 交互。
   - 下载地址: [https://git-scm.com/downloads](https://git-scm.com/downloads)
-- **Python : 仪表板的编程语言。
+- **Python**: 仪表板的编程语言。
   - 下载地址: [https://www.python.org/downloads/](https://www.python.org/downloads/)
 - **Streamlit**: 用于构建仪表板的框架。
   - 通过 pip 安装: `pip install streamlit`
@@ -20,10 +20,10 @@
 ## 2. 本地设置
 
 1.  **下载项目**: 获取项目文件（例如，通过下载 ZIP 文件或如果您已有仓库则克隆）。
-    -   将项目解压到 `C:\Users\您的用户名\Desktop\YEAP-9-19` 等位置。
+    -   将项目解压到 `C:\Users\您的用户名\Desktop\yeap-10-8-2` 等位置。
 
-2.  **打开终端**: 在您的终端（Windows 上为 PowerShell）中导航到项目根目录 (`YEAP-9-19`)。
-    -   在文件资源管理器中，右键单击 `YEAP-9-19` 文件夹内部，然后选择“在此处打开终端”或“在此处打开 PowerShell 窗口”。
+2.  **打开终端**: 在您的终端（Windows 上为 PowerShell）中导航到项目根目录 (`yeap-10-8-2`)。
+    -   在文件资源管理器中，右键单击 `yeap-10-8-2` 文件夹内部，然后选择"在此处打开终端"或"在此处打开 PowerShell 窗口"。
 
 3.  **安装依赖**: Streamlit 应用程序需要特定的 Python 库。这些库列在 `streamlit/requirements.txt` 中。
     -   激活环境（如果需要）：
@@ -44,7 +44,30 @@
         ```
     -   此脚本将自动在您的默认网页浏览器中打开 `http://localhost:8501`（或类似地址），您的仪表板将在此处运行。
 
-## 3. 上传到 GitHub
+## 3. 页面结构
+
+YEAP Dashboard 包含以下页面：
+
+1. **🏠 Home** - 项目主页和概览
+2. **📊 Overview** - 数据总览和基础统计
+3. **📊 Outputs Count Statistics** - 产出数量统计分析
+4. **🌱 Knowledge Development & Dissemination** - 知识发展与传播分析
+5. **🔧 Technical Assistance** - 技术援助分析
+6. **💪 Capacity Development** - 能力发展分析
+7. **🤝 Advocacy & Partnerships** - 倡导与合作分析
+
+### 独立页面标题系统
+
+每个专项分析页面都有独立的主标题和副标题：
+- **Outputs Count Statistics**: "📊 产出数量统计" / "统计各类产出的数量分布"
+- **Knowledge Development & Dissemination**: "🌱 知识发展与传播" / "分析知识创造和传播活动"
+- **Technical Assistance**: "🔧 技术援助" / "技术支持和援助项目分析"
+- **Capacity Development**: "💪 能力发展" / "能力建设和培训项目分析"
+- **Advocacy & Partnerships**: "🤝 倡导与合作" / "倡导活动和合作伙伴关系分析"
+
+如需修改页面标题，请参考 `独立页面标题修改说明.md` 文档。
+
+## 4. 上传到 GitHub
 
 本项目包含一个 PowerShell 脚本 (`upload_to_github.ps1`)，用于简化将代码上传到 GitHub 仓库的过程。
 
@@ -88,7 +111,7 @@
         -   尝试正常推送。如果失败（例如，由于远程更改），它将自动尝试强制推送。
         -   成功推送后，它将显示您的 GitHub 仓库 URL 和一个用于检查 Streamlit Cloud 部署状态的链接。
 
-## 4. 部署到 Streamlit Cloud
+## 5. 部署到 Streamlit Cloud
 
 Streamlit Cloud 可以轻松地直接从 GitHub 部署您的 Streamlit 应用程序。
 
@@ -125,6 +148,35 @@ Streamlit Cloud 可以轻松地直接从 GitHub 部署您的 Streamlit 应用程
 3.  **预览**: Trae AI 将执行脚本，激活虚拟环境，如果需要则安装依赖，并启动 Streamlit 应用程序。然后它将提供一个预览 URL（例如，`http://localhost:8501`），您可以在浏览器中打开该 URL 以查看仪表板。
 
 此脚本处理环境检查、依赖安装，并自动打开浏览器，方便开发。
+
+## 6. 故障排除
+
+### 常见问题
+
+1. **Python 依赖问题**
+   - 确保您使用的是 Python 3.7 或更高版本
+   - 如果遇到包安装问题，尝试升级 pip：`python -m pip install --upgrade pip`
+
+2. **Streamlit 启动问题**
+   - 检查端口 8501 是否被占用
+   - 尝试使用不同端口：`streamlit run streamlit/streamlit_app.py --server.port 8502`
+
+3. **GitHub 上传问题**
+   - 确保您已正确配置 Git 用户名和邮箱
+   - 检查网络连接和 GitHub 访问权限
+   - 如果推送失败，可能需要先创建远程仓库
+
+4. **数据文件问题**
+   - 确保所有 CSV 文件都在 `orignaldata/` 文件夹中
+   - 检查文件名是否与代码中的引用一致
+
+### 获取帮助
+
+如果您遇到其他问题，请：
+1. 检查终端输出的错误信息
+2. 确认所有文件路径正确
+3. 参考 `Data_Sources_Documentation.md` 了解数据结构
+4. 查看 `独立页面标题修改说明.md` 了解页面定制
 
 ---
 

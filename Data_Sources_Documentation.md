@@ -3,7 +3,15 @@
 
 ## 📋 项目概览 Project Overview
 
-YEAP (Youth Employment Action Programme) 数据分析仪表板是一个基于 Streamlit 的交互式数据可视化平台，用于分析青年就业行动计划的调查数据。该仪表板包含四个主要页面，提供从概览到专项分析的全方位数据洞察。
+YEAP (Youth Employment Action Programme) 数据分析仪表板是一个基于 Streamlit 的交互式数据可视化平台，用于分析青年就业行动计划的调查数据。该仪表板包含五个主要页面，提供从概览到专项分析的全方位数据洞察。
+
+### 页面结构 Page Structure
+1. **🏠 Overview** - 调查概览页面
+2. **📊 Outputs Count Statistics** - 产出统计页面
+3. **📚 Knowledge Development & Dissemination** - 知识发展与传播分析
+4. **🔧 Technical Assistance** - 技术援助分析
+5. **🎓 Capacity Development** - 能力发展分析
+6. **🤝 Advocacy & Partnerships** - 倡导与合作伙伴关系分析
 
 ## 🏠 Overview 页面 (调查概览)
 
@@ -111,13 +119,37 @@ YEAP (Youth Employment Action Programme) 数据分析仪表板是一个基于 St
 
 ---
 
-## 📈 Specialized Analysis (Q6-Q11) 页面 (专项分析)
+## 📈 Specialized Analysis Pages (专项分析页面)
 
 ### 页面功能 Page Functions
+- **独立页面标题**: 每个专项分析页面都有独立的主标题和副标题
 - **产出统计对比**: 各问题类别的产出数量统计
 - **主题化分析**: 按四大主题组织的详细频率分析
 - **地区筛选**: 支持按组织单位筛选数据
 - **多维度分析**: 资金来源、目标群体、交付方式等多角度分析
+
+### 页面标题系统 Page Title System
+每个专项分析页面都有独立的标题配置：
+
+#### 📊 Outputs Count Statistics
+- **主标题**: "📊 Outputs Count Statistics"
+- **副标题**: "Overview of output counts across all analysis areas"
+
+#### 📚 Knowledge Development & Dissemination
+- **主标题**: "📚 Knowledge Development & Dissemination"
+- **副标题**: "Analysis of knowledge development and dissemination outputs"
+
+#### 🔧 Technical Assistance
+- **主标题**: "🔧 Technical Assistance"
+- **副标题**: "Analysis of technical assistance outputs and delivery"
+
+#### 🎓 Capacity Development
+- **主标题**: "🎓 Capacity Development"
+- **副标题**: "Analysis of capacity development programs and outcomes"
+
+#### 🤝 Advocacy & Partnerships
+- **主标题**: "🤝 Advocacy & Partnerships"
+- **副标题**: "Analysis of advocacy initiatives and partnership activities"
 
 ### 数据文件位置 Data File Locations
 - **Q6 文件**: `orignaldata/PART3_base_dataQ6.csv` (知识发展与传播)
@@ -255,7 +287,7 @@ streamlit run streamlit_app.py
 ## 📁 项目文件结构 Project File Structure
 
 ```
-YEAP-9-19/
+YEAP-10-8-2/
 ├── orignaldata/                    # 原始数据文件夹
 │   ├── PART1_base_dataQ2-5.csv   # Q1-Q5 通用调查数据
 │   ├── PART2_base_dataQ3.csv     # Q3 实施框架数据
@@ -270,14 +302,15 @@ YEAP-9-19/
 ├── streamlit/                      # Streamlit 应用文件夹
 │   ├── streamlit_app.py           # 主应用文件
 │   ├── st_landing_dashboard.py    # Overview 页面
-│   ├── st_general_dashboard.py    # 通用分析页面
-│   ├── st_q345_dashboard.py       # Q3-Q5 专项分析页面
-│   ├── st_q6q7q10q11_dashboard.py # Q6-Q11 专项分析页面
+│   ├── st_q6q7q10q11_dashboard.py # 专项分析页面 (Q6-Q11)
 │   ├── st_styles.py               # 样式管理文件
 │   ├── visualizer.py              # 可视化工具文件
 │   └── requirements.txt           # Python 依赖文件
 ├── Data_Sources_Documentation.md   # 本说明文档
-├── 看板标题修改指南.md             # 标题修改指南
+├── TUTORIAL.md                    # 项目教程文档
+├── 独立页面标题修改说明.md         # 标题修改指南
+├── start_dashboard.py             # 启动脚本
+├── upload_to_github.ps1           # GitHub 上传脚本
 └── README.md                      # 项目说明文件
 ```
 
