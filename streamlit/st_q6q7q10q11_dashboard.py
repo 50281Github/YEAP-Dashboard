@@ -1051,7 +1051,7 @@ def create_layout():
     # Add section filter  selectbox
     st.markdown("### 📋 Select Analysis Section")
     section_options = [
-        "Outputs Count Statistics",
+        "📊Outputs Count Statistics",
         "📚 Knowledge Development & Dissemination", 
         "🔧 Technical Assistance",
         "🎓 Capacity Development",
@@ -1067,7 +1067,7 @@ def create_layout():
     st.markdown("---")
     
     # Display content based on selected section
-    if selected_section == "Outputs Count Statistics":
+    if selected_section == "📊Outputs Count Statistics":
         # Section 1: Outputs Count Statistics only
         st.markdown("""
         <div style="background-color: #e8f4fd; padding: 15px; border-radius: 10px; margin: 20px 0;">

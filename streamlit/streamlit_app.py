@@ -1,6 +1,4 @@
 import streamlit as st
-import st_general_dashboard
-import st_q345_dashboard
 import st_q6q7q10q11_dashboard
 import st_landing_dashboard
 import os
@@ -41,8 +39,6 @@ except Exception:
 
 PAGES = {
     "🏠 Overview": st_landing_dashboard,
-    "📊 General Survey Analysis": st_general_dashboard,
-    "🔍 Specialized Analysis": st_q345_dashboard,
     "📈 Specialized Analysis": st_q6q7q10q11_dashboard,
 }
 

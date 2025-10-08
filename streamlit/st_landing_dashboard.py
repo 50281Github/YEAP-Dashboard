@@ -270,30 +270,30 @@ def create_q345_table(data):
     
     # Add Q3 title row
     if q3_cols:
-        display_columns.append('Q3: Please indicate the cluster(s) of the implementation framework relevant to your work on youth employment.')
+        display_columns.append('Distribution Of Outputs Across The Clusters Of The Implementation Framework')
         # Add empty columns for Q3 options (except the first one which has the title)
         for i in range(len(q3_cols) - 1):
             display_columns.append('')
     
     # Add Q4 title row  
     if q4_cols:
-        display_columns.append('Q4: Please indicate the policy areas relevant to your work on youth employment.')
+        display_columns.append('Distribution Of Outputs Across The Pillars Of The Call For Action On Youth Employment')
         # Add empty columns for Q4 options (except the first one which has the title)
         for i in range(len(q4_cols) - 1):
             display_columns.append('')
     
     # Add Q5 title row
     if q5_cols:
-        display_columns.append('Q5: Please mark the youth groups targeted in your work on youth employment.')
+        display_columns.append('Distribution Of Outputs Across Target Youth Groups, When Applicable')
         # Add empty columns for Q5 options (except the first one which has the title)
         for i in range(len(q5_cols) - 1):
             display_columns.append('')
     
     # Create a multi-level header structure
     # First create the title row
-    title_row = [''] + ['Q3: Please indicate the cluster(s) of the implementation framework relevant to your work on youth employment.'] * len(q3_cols) + \
-                ['Q4: Please indicate the policy areas relevant to your work on youth employment.'] * len(q4_cols) + \
-                ['Q5: Please mark the youth groups targeted in your work on youth employment.'] * len(q5_cols)
+    title_row = [''] + ['Distribution Of Outputs Across The Clusters Of The Implementation Framework'] * len(q3_cols) + \
+                ['Distribution Of Outputs Across The Pillars Of The Call For Action On Youth Employment'] * len(q4_cols) + \
+                ['Distribution Of Outputs Across Target Youth Groups, When Applicable'] * len(q5_cols)
     
     # Create option row (clean column names for display)
     option_row = ['Department/Region']
@@ -312,9 +312,9 @@ def create_q345_table(data):
     result_df.columns = option_row
     
     # Add title information as metadata (we'll display it separately)
-    result_df.attrs['q3_title'] = 'Q3: Please indicate the cluster(s) of the implementation framework relevant to your work on youth employment.'
-    result_df.attrs['q4_title'] = 'Q4: Please indicate the policy areas relevant to your work on youth employment.'
-    result_df.attrs['q5_title'] = 'Q5: Please mark the youth groups targeted in your work on youth employment.'
+    result_df.attrs['q3_title'] = 'Distribution Of Outputs Across The Clusters Of The Implementation Framework'
+    result_df.attrs['q4_title'] = 'Distribution Of Outputs Across The Pillars Of The Call For Action On Youth Employment'
+    result_df.attrs['q5_title'] = 'Distribution Of Outputs Across Target Youth Groups, When Applicable'
     result_df.attrs['q3_cols'] = len(q3_cols)
     result_df.attrs['q4_cols'] = len(q4_cols)
     result_df.attrs['q5_cols'] = len(q5_cols)
@@ -429,13 +429,13 @@ def create_html_table_with_headers(df, original_data):
     html += f'<th class="dept-col" rowspan="2">{dept_col}</th>'
     
     if q3_count > 0:
-        html += f'<th class="title-header" colspan="{q3_count}">Q3: Please indicate the cluster(s) of the implementation framework relevant to your work on youth employment.</th>'
+        html += f'<th class="title-header" colspan="{q3_count}">Distribution Of Outputs Across The Clusters Of The Implementation Framework</th>'
     
     if q4_count > 0:
-        html += f'<th class="title-header" colspan="{q4_count}">Q4: Please indicate the policy areas relevant to your work on youth employment.</th>'
+        html += f'<th class="title-header" colspan="{q4_count}">Distribution Of Outputs Across The Pillars Of The Call For Action On Youth Employment</th>'
     
     if q5_count > 0:
-        html += f'<th class="title-header" colspan="{q5_count}">Q5: Please mark the youth groups targeted in your work on youth employment.</th>'
+        html += f'<th class="title-header" colspan="{q5_count}">Distribution Of Outputs Across Target Youth Groups, When Applicable</th>'
     
     html += "</tr>"
     
